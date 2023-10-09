@@ -1,4 +1,4 @@
-# TPOC2ChampionandLegendXPCalculator
+# TPOC2 Champion & Legend XP Calculator
 To start click the Green Code button in the top right corner and click download
 Extract folder to where you want
 You can use the .exe to start, but your antivirus might complain about it
