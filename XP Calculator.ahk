@@ -102,8 +102,8 @@ Gui, add , Edit, vfourstar         xm+525 y35  w100 ReadOnly
 
 ;Legends XP part
 Gui, add , Edit, limit5 vCurrentLegendXPString gSubmitCurrentLegendXPString xm+370 y225 w70 
-Gui, add , DropDownList, xm+442  y225 w65  vCurrentLegendlvl gSubmitCurrentLegendlvl , 1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16|17|18|19|20|21|22|23|24|25|26|27|28|29|30||31|32|33|35|36|37|38|39|40|41|42|43|44|45|46|47|48|49
-Gui, add , DropDownList, xm+509  y225 w65  vTargetLegendlvl  gSubmitTargetLegendlvl  , 1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16|17|18|19|20|21|22|23|24|25|26|27|28|29|30|31|32|33|35|36|37|38|39|40|41|42|43|44|45|46|47|48|49|50||
+Gui, add , DropDownList, xm+442  y225 w65  vCurrentLegendlvl gSubmitCurrentLegendlvl , 1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16|17|18|19|20|21|22|23|24|25|26|27|28|29|30||31|32|33|34|35|36|37|38|39|40|41|42|43|44|45|46|47|48|49
+Gui, add , DropDownList, xm+509  y225 w65  vTargetLegendlvl  gSubmitTargetLegendlvl  , 1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16|17|18|19|20|21|22|23|24|25|26|27|28|29|30|31|32|33|34|35|36|37|38|39|40|41|42|43|44|45|46|47|48|49|50||
 Gui, add , Edit, vamountsofweeks xm+370 y265 w125 ReadOnly, Weeks
 
 Gui, -AlwaysOntop
