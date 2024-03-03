@@ -25,21 +25,30 @@ ctr          := 0
 
 ;lookup table for XP per battle won on an adventure
 halfstarXP       := [20,40,60,100]
-onestarXP        := [10, 20,110, 160, 205, 245, 305]
-oneandstarXP     := [15, 30,215, 320, 410, 485, 605]
-twostarXP        := [25, 50,350, 520, 665, 790, 985]
+;7 Battle XP for 1.5
+onestarXP        := [30, 60, 155, 200, 230, 260, 305]
+oneandstarXP     := [60, 120, 305, 395, 455, 515, 605]
+
+;7 Battle XP
+twostarXP        := [25, 50,395, 540, 665, 790, 985]
 twoandstarXP     := [35, 70,565, 780, 960,1140,1425]
 threestarXP	 := [50,100,770,1060,1300,1540,1925]
+;9+12 Battle XP
 GalioXP          := [75,150,615, 965,1315,1780,2130,2480,3100]
-ASolXP           := [95,190,285, 700,2015,2280,2545,2810,3225,3490,3755,4505]
+ASolXP           := [95,190,285, 700,2015,2280,2545,2960,3225,3490,3755,4505]
 
-sevenbattleadventureratio := [.025,.05,.355,.528,.675,.8,1]
+;for 1*,1.5*
+sevenbattleadventureratiolowstar := [0.1,0.2,0.5082,0.657,0.755,0.853,1]
+
+;for 2*,2.5*,3*
+sevenbattleadventureratio := [.025,.05,.4,.548,.675,.8,1]
+
 
 weekly3halfXP    := [75,150,1030,1595,2035,2395,3015]
 weekly4xp        := [95,190,1505,1835,2200,2545,3200]
 weekly4halfXP    := [110,220,1785,2455,3015,3575,4470]
 
-CurrentChampXP		:=0
+CurrentChampXP	    :=0
 TargetChamplvl      :=30
 
 MAX_XP:= 51290
