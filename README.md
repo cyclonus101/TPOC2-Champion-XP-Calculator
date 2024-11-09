@@ -13,6 +13,6 @@ based on the target level drop down menu which you can change by pressing on it
   
 On the right hand side is Legends XP estimater for Legend level  
 You need to enter you're current Legends XP and your current Legends Level  
-The amount of weeks it takes to get your target Legends level is automatically calculated 
+The amount of weeks it takes to get your target Legends level is automatically calculated  
 (based on the current 27000XP weekly rate)   
 The target Legends level can be changed from the drop down menu  
