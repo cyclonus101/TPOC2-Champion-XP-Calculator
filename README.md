@@ -6,13 +6,10 @@ If you have AutoHotKey installed, you can use the .ahk to start it instead
   
 Usage:  
   
-Near the bottom left-hand corner there is a white box 
-where you write down your current champ XP      
-then amount of adventures is automatically generated    
-based on the target level drop down menu which you can change by pressing on it  
-  
-On the right hand side is Legends XP estimater for Legend level  
-You need to enter you're current Legends XP and your current Legends Level  
-The amount of weeks it takes to get your target Legends level is automatically calculated  
-(based on the current 27000XP weekly rate)   
-The target Legends level can be changed from the drop down menu  
+At the bottom left-hand corner there is a white box 
+Where you write down your current champ XP      
+Then the amount of adventures to level up is automatically generated in text boxes at the top    
+This is based on the target level drop down menu which you can change by pressing on it and selecting a level 
+ 
+ 
+I've removed the Legend Level XP calculator part because riot releases new events with massive amounts of LLXP
