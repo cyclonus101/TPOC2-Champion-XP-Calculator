@@ -239,7 +239,7 @@ Gui, add, picture, x75 y%BOTTOMADVY2% w75 h75, images\adv-lulu.png
 ;1.5
 Gui, add, picture, x150 y%BOTTOMADVY1%  w75 h75, images\adv-gp.png
 Gui, add, picture, x150 y%BOTTOMADVY2%  w75 h75, images\adv-ez.png
-Gui, add, picture, x150 y%BOTTOMADVY2%  w75 h75, images\adv-illaoi.png
+Gui, add, picture, x150 y%BOTTOMADVY3%  w75 h75, images\adv-illaoi.png
 ;2
 Gui, add, picture, x225 y%BOTTOMADVY1%  w75 h75, images\adv-zed.png
 Gui, add, picture, x225 y%BOTTOMADVY2%  w75 h75, images\adv-naut.png
@@ -247,7 +247,7 @@ Gui, add, picture, x225 y%BOTTOMADVY3%  w75 h75, images\adv-darius.png
 ;2.5
 Gui, add, picture, x300 y%BOTTOMADVY1%  w75 h75, images\adv-viktor.png
 Gui, add, picture, x300 y%BOTTOMADVY2%  w75 h75, images\adv-draven.png
-Gui, add, picture, x300 y%BOTTOMADVY2%  w75 h75, images\adv-azir.png
+Gui, add, picture, x300 y%BOTTOMADVY3%  w75 h75, images\adv-azir.png
 ;3
 Gui, add, picture, x375 y%BOTTOMADVY1%  w75 h75, images\adv-elder.png
 Gui, add, picture, x375 y%BOTTOMADVY2%  w75 h75, images\adv-kaisa.png
@@ -255,7 +255,7 @@ Gui, add, picture, x375 y%BOTTOMADVY3%  w75 h75, images\adv-thresh.png
 ;3.5
 Gui, add, picture, x450 y%BOTTOMADVY1%  w75 h75, images\adv-fiddle.png
 Gui, add, picture, x450 y%BOTTOMADVY2%  w75 h75, images\adv-heist.png
-Gui, add, picture, x450 y%BOTTOMADVY2%  w75 h75, images\adv-garen.png
+Gui, add, picture, x450 y%BOTTOMADVY3%  w75 h75, images\adv-garen.png
 ;galio
 Gui, add, picture, x550 y%BOTTOMADVY1%  w75 h75, images\adv-galio.png
 ;lissandra
@@ -290,7 +290,7 @@ Gui, add , Edit, x0 y310 w485 h50 ReadOnly vfriendlytext3 -vscroll, The numbers 
 
 ;********************************************************************************
 
-;Legends XP part - currently removed because it's not that relevent
+; Legends XP part - currently removed because it's not that relevant
 ;Gui, add , Edit, limit5 vCurrentLegendXPString gSubmitCurrentLegendXPString xm+778 y350 w70 h28
 ;Gui, add , DropDownList, xm+850  y350 w65  vCurrentLegendlvl gSubmitCurrentLegendlvl , 1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16|17|18|19|20|21|22|23|24|25|26|27|28|29|30|31|32|33|35|36|37|38|39|40|41|42|43|44|45|46|47|48|49|50||51|52|53|54|55|56|57|58|59|60|61|62|63|64|65|66|67|68|69|70|71|71|72|73|74|75|76|77|78|79|80
 ;Gui, add , DropDownList, xm+850  y380 w65  vTargetLegendlvl  gSubmitTargetLegendlvl  , 1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16|17|18|19|20|21|22|23|24|25|26|27|28|29|30|31|32|33|35|36|37|38|39|40|41|42|43|44|45|46|47|48|49|50|51|52|53|54|55|56|57|58|59|60|61|62|63|64|65|66|67|68|69|70|71|71|72|73|74|75|76|77|78|79|80||
