@@ -3,14 +3,27 @@
 SendMode Input  ; Recommended for new scripts due to its superior speed and reliability.
 SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
 ;MsgBox %A_AhkVersion%
-
+;MsgBox %A_ScreenDPI%
 #SingleInstance, force
 
-
+profile100 := "images\profile\Pixels 100\"
+profile75  := "images\profile\Pixels 75\"
 ;--------------------------------------------------------------------------------------------------
 ; history
 ;--------------------------------------------------------------------------------------------------
 /*
+August 15/25 
+-Updated Adventure Icons
+-Updated to auto detect DPI settings
+-Cleaned up the updaterunstext code
+
+Bugs:
+->If entering too many invalid characters at the same time then will be able to be entered into the textbox
+->For some reason the shift + number keys will just enter the number instead of special character (don't understand why this happens)
+
+TODO: 
+->I don't plan on adding 1.5* warwick to the list
+
 July 19/25
 ->updated all locations of the text box/images
 ->updated background image to Mel's Lvl 1 card
@@ -67,31 +80,45 @@ ChampXPList  := [0,50,150,300,500,800,1250,1750,2310,2980,3780,4710,5780,6990,83
 ;****************************************************************************************************************************************
 
 ; LUT for XP per battle won on an adventure
-halfstarXP       := [ 20, 40,  60, 100]
-onestarXP        := [ 10, 20, 110, 160, 205, 245  305]
-oneandstarXP     := [ 15, 30, 215, 320, 410, 485, 605]
-twostarXP        := [ 25, 50, 350, 520, 665, 790, 985]
-twoandstarXP     := [ 35, 70, 565, 780, 960,1140,1425]
-threestarXP		 := [ 50,100, 770,1060,1300,1540,1925]
-threehalfstarXP	 := [ 75,150,1230,1695,2045,2395,3015]
-GalioXP          := [ 75,150, 615, 965,1315,1780,2130,2480,3100]
-ASolXP           := [ 95,190, 285, 700,2015,2280,2545,2810,3225,3490,3755,4505]
-LissXP           := [110,220,1785,2345,2905,3465,4360]
-YasuoXP 		 := [110,220,1785,2455,3015,3575,4470]
-WarwickXP 		 := [130,260,1045,1700,2355,3140,3795,4840]
-LongLissXP       := [110,220,1785,2345,3910,4470,5030,5925]
-fivestarXP       := [130,260,2090,2875,3530,4185,5230]
-sixnightmareXP   := [150,300,2410,3315,4070,4825,6030]
-ArcaneAsolXP	 := [170,340, 510,1545,3955,4815,5675,6710,7570,8430,9290,10670]
 
-;****************************************************************************************************************************************
+halfstarXP       := [ 20, 40,  60, 100] ;4
+onestarXP        := [ 10, 20, 110, 160, 205, 245  305] ;7
+oneandstarXP     := [ 15, 30, 215, 320, 410, 485, 605] ;7
+twostarXP        := [ 25, 50, 350, 520, 665, 790, 985] ;7
+twoandstarXP     := [ 35, 70, 565, 780, 960,1140,1425] ;7
+threestarXP		 := [ 50,100, 770,1060,1300,1540,1925] ;7
+threehalfstarXP	 := [ 75,150,1230,1695,2045,2395,3015] ;7
+GalioXP          := [ 75,150, 615, 965,1315,1780,2130,2480,3100] ;9
+ASolXP           := [ 95,190, 285, 700,2015,2280,2545,2810,3225,3490,3755,4505] ;12
+LissXP           := [110,220,1785,2345,2905,3465,4360] ;7
+YasuoXP 		 := [110,220,1785,2455,3015,3575,4470] ;7
+WarwickXP 		 := [130,260,1045,1700,2355,3140,3795,4840] ;8
+fivestarXP       := [130,260,2090,2875,3530,4185,5230]      ;7
+sixnightmareXP   := [150,300,2410,3315,4070,4825,6030]      ;7
+ArcaneAsolXP	 := [170,340, 510,1545,3955,4815,5675,6710,7570,8430,9290,10670] ;12
+; Patch 6.7 - 15 types of battles
+
+;didn't bother adding it to the main calculator
+LongLissXP       := [110,220,1785,2345,3910,4470,5030,5925] ;8
+
+;LUT for pointers to the XP LUTs that are used by the updaterunstext functions
+AdventureXP_LUT := [halfstarXP,onestarXP,oneandstarXP,twostarXP,twoandstarXP,threestarXP,threehalfstarXP,GalioXP,ASolXP,LissXP,YasuoXP,WarwickXP,fivestarXP,sixnightmareXP,ArcaneAsolXP]
+
+;This is a lut for the names of the gui text boxes, these need to be quotes for the updaterunstext to work
+AdventureText_LUT := ["halfstar","onestar","oneandhalfstar","twostar","twoandhalfstar","threestar","threeandhalfstar","galiostar","lissStar","yasuoStar","asolstar","warwickstar","fivestar","sixstar","aasolstar"]       
+
+;LUT for amount of battles per adventure
+               ;.5 1*  to  3.5 Gal ASOL Lis Yas, WW,5k,6k ASOL
+BATTLES_LUT := [ 4,7,7,7,7,7,7,  9,  12, 7,   7,  8, 7, 7, 12]
+
+;****************************************************************
 
 ;used to do some calculations
 frac_adv     := 0
 ctr          := 0
 ;Used for the Text Boxes and drop down menus
-CurrentChampXP		:=0
-TargetChamplvl      :=30
+CurrentChampXP		:= 0
+TargetChamplvl      := 30
 CurrentLegendXP     := 0
 CurrentLegendlvl    := 1
 TargetLegendlvl     := 50
@@ -106,17 +133,34 @@ MAX_LEGEND_XP := 2360000
 
 WEEKLY_LEGEND_XP := 27000
 
+MAX_UNIQUE_ADVENTURES_XP := 15
+
+;****************************************************************
+
 ;XY Coordinate offsets for Images
-XPTEXTOFFSETY := 50
-STAROFFSETY   := 35
+XPTEXTOFFSETY := 44
+STAROFFSETY   := 18
+;TEXTFFSETY    := 3
 
 BOTTOMSTARY := 480
 BOTTOMRUNY  := 445
 
+;This is for the 75x75 pics
 BOTTOMADVY1 := 65
 BOTTOMADVY2 := 140
 BOTTOMADVY3 := 215
 BOTTOMADVY4 := 290
+;this for the 100x100 pics
+BOTTOMADVY1x := 65
+BOTTOMADVY2x := 165
+BOTTOMADVY3x := 265
+BOTTOMADVY4x := 360
+
+;--------------------------------------------------------------------------------------------------
+; Prechecks
+;--------------------------------------------------------------------------------------------------
+;Make sure all Images are included
+CheckImages()
 
 ;--------------------------------------------------------------------------------------------------
 ; GUI Stuff
@@ -126,81 +170,101 @@ SetFormat, float, 6.1
 ;setup braum as as tray icon
 Menu, Tray,  Icon, images\braum.ico
 
-;GUI setup
-Gui, -dpiscale ;needed to disable window DPI scaling
-Gui, Add, Picture, x0 y-75, images\mel-1600x900.png ;y-75 to offset the black part of the card art
-Gui, Font, Times New Roman, s30, cwhite
+;GUI background image setup
+Gui, +dpiscale -alwaysontop ;enable dpi scaling
+
+;handles background image placement
+if(A_ScreenDPI >= 144)
+Gui, Add, Picture, x-25 y-60, images\mel-2560x1440.png 
+
+else if(A_ScreenDPI >= 120)
+Gui, Add, Picture, x-180 y-100, images\mel-2560x1440.png 
+
+else if(A_ScreenDPI >= 96)
+Gui, Add, Picture, x-425 y-150, images\mel-2560x1440.png 
+
+else
+{
+	MsgBox % DPI too low to display background image
+	ExitApp
+}
+
+Gui, Font, Arial
+
+;Debug TextBoxes
+;Gui, add , Edit, x1500 y400 w50 ReadOnly vdpibox, %A_ScreenDPI%
 
 ;Text Boxes - Adventures to Win
 ;Normal Adventures
-Gui, add , Edit, vhalfstar         x0   y0  w75 ReadOnly
-Gui, add , Edit, vonestar          x80  y0 w75 ReadOnly
-Gui, add , Edit, voneandhalfstar   x160 y0  w65 ReadOnly
-Gui, add , Edit, vtwostar          x230 y0  w65 ReadOnly
-Gui, add , Edit, vtwoandhalfstar   x300 y0  w65 ReadOnly
-Gui, add , Edit, vthreestar        x370 y0  w70 ReadOnly
-Gui, add , Edit, vthreeandhalfstar x455 y0 w70 ReadOnly
+Gui, add , Edit, vhalfstar         x0   y%XPTEXTOFFSETY% w75 ReadOnly
+Gui, add , Edit, vonestar          x75  y%XPTEXTOFFSETY% w75 ReadOnly
+Gui, add , Edit, voneandhalfstar   x150 y%XPTEXTOFFSETY% w75 ReadOnly
+Gui, add , Edit, vtwostar          x225 y%XPTEXTOFFSETY% w75 ReadOnly
+Gui, add , Edit, vtwoandhalfstar   x300 y%XPTEXTOFFSETY% w75 ReadOnly
+Gui, add , Edit, vthreestar        x375 y%XPTEXTOFFSETY% w75 ReadOnly
+Gui, add , Edit, vthreeandhalfstar x450 y%XPTEXTOFFSETY% w75 ReadOnly
 ;Special Adventures
-Gui, add , Edit, vgaliostar        x545   y0 w75 ReadOnly
-Gui, add , Edit, vlissStar         x665   y0  w70 ReadOnly
-Gui, add , Edit, vyasuoStar        x795   y0  w70 ReadOnly
-Gui, add , Edit, vasolstar         x910   y0  w75 ReadOnly
-Gui, add , Edit, vwarwickstar      x1030  y0  w75 ReadOnly
-Gui, add , Edit, vfivestar         x1170  y0  w70 ReadOnly
-Gui, add , Edit, vsixstar          x1315  y0  w70 ReadOnly
-Gui, add , Edit, vaasolstar        x1480  y0  w70 ReadOnly
+Gui, add , Edit, vgaliostar        x545   y%XPTEXTOFFSETY%  w75 ReadOnly
+Gui, add , Edit, vlissStar         x670   y%XPTEXTOFFSETY%  w75 ReadOnly
+Gui, add , Edit, vyasuoStar        x805   y%XPTEXTOFFSETY%  w75 ReadOnly
+Gui, add , Edit, vasolstar         x918   y%XPTEXTOFFSETY%  w75 ReadOnly
+Gui, add , Edit, vwarwickstar      x1042  y%XPTEXTOFFSETY%  w75 ReadOnly
+Gui, add , Edit, vfivestar         x1165  y%XPTEXTOFFSETY%  w75 ReadOnly
+Gui, add , Edit, vsixstar          x1313  y%XPTEXTOFFSETY%  w75 ReadOnly
+Gui, add , Edit, vaasolstar        x1487  y%XPTEXTOFFSETY%  w75 ReadOnly
 
 ;Images - Star picture locations**********************************************************
 Gui, add, picture, x30 y%STAROFFSETY%   w13 h25 , images\halfstar.png
 ;1 star
-Gui, add, picture, x105 y%STAROFFSETY%  w25 h25, images\wholestar.png
+Gui, add, picture, x100 y%STAROFFSETY%  w25 h25, images\wholestar.png
 ;1.5 star
 Gui, add, picture, x170 y%STAROFFSETY%  w25 h25, images\wholestar.png
 Gui, add, picture, x195 y%STAROFFSETY%  w13 h25, images\halfstar.png
 ; 2 star
-Gui, add, picture, x235 y%STAROFFSETY%  w25 h25, images\wholestar.png
-Gui, add, picture, x260 y%STAROFFSETY%  w25 h25, images\wholestar.png
+Gui, add, picture, x238 y%STAROFFSETY%  w25 h25, images\wholestar.png
+Gui, add, picture, x263 y%STAROFFSETY%  w25 h25, images\wholestar.png
 ; 2.5 star
-Gui, add, picture, x300 y%STAROFFSETY%  w25 h25, images\wholestar.png
-Gui, add, picture, x325 y%STAROFFSETY%  w25 h25, images\wholestar.png
-Gui, add, picture, x350 y%STAROFFSETY%  w13 h25, images\halfstar.png
+Gui, add, picture, x306 y%STAROFFSETY%  w25 h25, images\wholestar.png
+Gui, add, picture, x331 y%STAROFFSETY%  w25 h25, images\wholestar.png
+Gui, add, picture, x356 y%STAROFFSETY%  w13 h25, images\halfstar.png
 ; 3 star
-Gui, add, picture, x370 y%STAROFFSETY%  w25 h25, images\wholestar.png
-Gui, add, picture, x395 y%STAROFFSETY%  w25 h25, images\wholestar.png
-Gui, add, picture, x420 y%STAROFFSETY%  w25 h25, images\wholestar.png
+Gui, add, picture, x375 y%STAROFFSETY%  w25 h25, images\wholestar.png
+Gui, add, picture, x400 y%STAROFFSETY%  w25 h25, images\wholestar.png
+Gui, add, picture, x425 y%STAROFFSETY%  w25 h25, images\wholestar.png
 ;Fiddle/Heist
-Gui, add, picture, x450 y%STAROFFSETY%  w25 h25, images\wholestar.png
-Gui, add, picture, x475 y%STAROFFSETY%  w25 h25, images\wholestar.png
-Gui, add, picture, x500 y%STAROFFSETY%  w25 h25, images\wholestar.png
-Gui, add, picture, x525 y%STAROFFSETY%  w13 h25, images\halfstar.png
+Gui, add, picture, x452 y%STAROFFSETY%  w25 h25, images\wholestar.png
+Gui, add, picture, x477 y%STAROFFSETY%  w25 h25, images\wholestar.png
+Gui, add, picture, x502 y%STAROFFSETY%  w25 h25, images\wholestar.png
+Gui, add, picture, x527 y%STAROFFSETY%  w13 h25, images\halfstar.png
 ;Galio
 Gui, add, picture, x545 y%STAROFFSETY%  w25 h25, images\wholestar.png
 Gui, add, picture, x570 y%STAROFFSETY%  w25 h25, images\wholestar.png
 Gui, add, picture, x595 y%STAROFFSETY%  w25 h25, images\wholestar.png
 Gui, add, picture, x620 y%STAROFFSETY%  w13 h25, images\halfstar.png
 ;Liss
-Gui, add, picture, x640 y%STAROFFSETY%  w25 h25, images\wholestar.png
-Gui, add, picture, x665 y%STAROFFSETY%  w25 h25, images\wholestar.png
-Gui, add, picture, x690 y%STAROFFSETY%  w25 h25, images\wholestar.png
-Gui, add, picture, x715 y%STAROFFSETY%  w25 h25, images\wholestar.png
-Gui, add, picture, x740 y%STAROFFSETY%  w25 h25, images\wholestar.png
+Gui, add, picture, x645 y%STAROFFSETY%  w25 h25, images\wholestar.png
+Gui, add, picture, x670 y%STAROFFSETY%  w25 h25, images\wholestar.png
+Gui, add, picture, x695 y%STAROFFSETY%  w25 h25, images\wholestar.png
+Gui, add, picture, x720 y%STAROFFSETY%  w25 h25, images\wholestar.png
+Gui, add, picture, x745 y%STAROFFSETY%  w25 h25, images\wholestar.png
 ;Yasuo
-Gui, add, picture, x775  y%STAROFFSETY%  w25 h25, images\wholestar.png
-Gui, add, picture, x800  y%STAROFFSETY%  w25 h25, images\wholestar.png
-Gui, add, picture, x825  y%STAROFFSETY%  w25 h25, images\wholestar.png
-Gui, add, picture, x850  y%STAROFFSETY%  w25 h25, images\wholestar.png
-Gui, add, picture, x875  y%STAROFFSETY%  w13 h25, images\halfstar.png
+Gui, add, picture, x780  y%STAROFFSETY%  w25 h25, images\wholestar.png
+Gui, add, picture, x805  y%STAROFFSETY%  w25 h25, images\wholestar.png
+Gui, add, picture, x830  y%STAROFFSETY%  w25 h25, images\wholestar.png
+Gui, add, picture, x855  y%STAROFFSETY%  w25 h25, images\wholestar.png
+Gui, add, picture, x880  y%STAROFFSETY%  w13 h25, images\halfstar.png
 ;ASol
-Gui, add, picture, x895  y%STAROFFSETY%  w25 h25, images\wholestar.png
-Gui, add, picture, x920  y%STAROFFSETY%  w25 h25, images\wholestar.png
-Gui, add, picture, x945  y%STAROFFSETY%  w25 h25, images\wholestar.png
-Gui, add, picture, x970  y%STAROFFSETY%  w25 h25, images\wholestar.png
+Gui, add, picture, x905  y%STAROFFSETY%  w25 h25, images\wholestar.png
+Gui, add, picture, x930  y%STAROFFSETY%  w25 h25, images\wholestar.png
+Gui, add, picture, x955  y%STAROFFSETY%  w25 h25, images\wholestar.png
+Gui, add, picture, x980  y%STAROFFSETY%  w25 h25, images\wholestar.png
+
 ;Arcane Warwick
-Gui, add, picture, x1010  y%STAROFFSETY%  w25 h25, images\wholestar.png
-Gui, add, picture, x1035  y%STAROFFSETY%  w25 h25, images\wholestar.png
-Gui, add, picture, x1060  y%STAROFFSETY%  w25 h25, images\wholestar.png
-Gui, add, picture, x1085  y%STAROFFSETY%  w25 h25, images\wholestar.png
-Gui, add, picture, x1110  y%STAROFFSETY%  w13 h25, images\halfstar.png
+Gui, add, picture, x1017  y%STAROFFSETY%  w25 h25, images\wholestar.png
+Gui, add, picture, x1042  y%STAROFFSETY%  w25 h25, images\wholestar.png
+Gui, add, picture, x1067  y%STAROFFSETY%  w25 h25, images\wholestar.png
+Gui, add, picture, x1092  y%STAROFFSETY%  w25 h25, images\wholestar.png
+Gui, add, picture, x1117  y%STAROFFSETY%  w13 h25, images\halfstar.png
 
 ;Swain/Fizz
 Gui, add, picture, x1140  y%STAROFFSETY%  w25 h25, images\wholestar.png
@@ -218,63 +282,65 @@ Gui, add, picture, x1375  y%STAROFFSETY%  w25 h25, images\wholestar.png
 Gui, add, picture, x1400  y%STAROFFSETY%  w25 h25, images\wholestar.png
 
 ;Arcane Asol
-Gui, add, picture, x1435  y%STAROFFSETY%  w25 h25, images\wholestar.png
-Gui, add, picture, x1460  y%STAROFFSETY%  w25 h25, images\wholestar.png
-Gui, add, picture, x1485  y%STAROFFSETY%  w25 h25, images\wholestar.png
-Gui, add, picture, x1510  y%STAROFFSETY%  w25 h25, images\wholestar.png
-Gui, add, picture, x1535  y%STAROFFSETY%  w25 h25, images\wholestar.png
-Gui, add, picture, x1560  y%STAROFFSETY%  w25 h25, images\wholestar.png
-Gui, add, picture, x1585  y%STAROFFSETY%  w13 h25, images\halfstar.png
+Gui, add, picture, x1437  y%STAROFFSETY%  w25 h25, images\wholestar.png
+Gui, add, picture, x1462  y%STAROFFSETY%  w25 h25, images\wholestar.png
+Gui, add, picture, x1487  y%STAROFFSETY%  w25 h25, images\wholestar.png
+Gui, add, picture, x1512  y%STAROFFSETY%  w25 h25, images\wholestar.png
+Gui, add, picture, x1537  y%STAROFFSETY%  w25 h25, images\wholestar.png
+Gui, add, picture, x1562  y%STAROFFSETY%  w25 h25, images\wholestar.png
+Gui, add, picture, x1587  y%STAROFFSETY%  w13 h25, images\halfstar.png
 
 ;********************************************************************************
 
 ;Images - Adventure Icons Cordinates
 ;0 or .5
-Gui, add, picture, x0 y%BOTTOMADVY1%  w75 h75, images\adv-teemo.png
-Gui, add, picture, x0 y%BOTTOMADVY2%  w75 h75, images\adv-mf.png
+Gui, add, picture, x0 y%BOTTOMADVY1%  w75 h75, %profile75%\teemo-profile-75x75-border.png
+Gui, add, picture, x0 y%BOTTOMADVY2%  w75 h75, %profile75%\mf-profile-75x75-border.png
 ;1
-Gui, add, picture, x75 y%BOTTOMADVY1% w75 h75, images\adv-garen.png
-Gui, add, picture, x75 y%BOTTOMADVY2% w75 h75, images\adv-lulu.png
-;Gui, add, picture, x75 y%BOTTOMADVY3% w75 h75, images\adv-ww.png
+Gui, add, picture, x75 y%BOTTOMADVY1% w75 h75, %profile75%\garen-profile-75x75-border.png
+Gui, add, picture, x75 y%BOTTOMADVY2% w75 h75, %profile75%\lulu-profile-75x75-border.png
 ;1.5
-Gui, add, picture, x150 y%BOTTOMADVY1%  w75 h75, images\adv-gp.png
-Gui, add, picture, x150 y%BOTTOMADVY2%  w75 h75, images\adv-ez.png
-Gui, add, picture, x150 y%BOTTOMADVY2%  w75 h75, images\adv-illaoi.png
+Gui, add, picture, x150 y%BOTTOMADVY1%  w75 h75, %profile75%\gp-profile-75x75-border.png
+Gui, add, picture, x150 y%BOTTOMADVY2%  w75 h75, %profile75%\ezreal-profile-75x75-border.png
+Gui, add, picture, x150 y%BOTTOMADVY3%  w75 h75, %profile75%\illaoi-profile-75x75-border.png
 ;2
-Gui, add, picture, x225 y%BOTTOMADVY1%  w75 h75, images\adv-zed.png
-Gui, add, picture, x225 y%BOTTOMADVY2%  w75 h75, images\adv-naut.png
-Gui, add, picture, x225 y%BOTTOMADVY3%  w75 h75, images\adv-darius.png
+Gui, add, picture, x225 y%BOTTOMADVY1%  w75 h75, %profile75%\zed-profile-75x75-border.png
+Gui, add, picture, x225 y%BOTTOMADVY2%  w75 h75, %profile75%\naut-profile-75x75-border.png
+Gui, add, picture, x225 y%BOTTOMADVY3%  w75 h75, %profile75%\darius-profile-75x75-border.png
 ;2.5
-Gui, add, picture, x300 y%BOTTOMADVY1%  w75 h75, images\adv-viktor.png
-Gui, add, picture, x300 y%BOTTOMADVY2%  w75 h75, images\adv-draven.png
-Gui, add, picture, x300 y%BOTTOMADVY2%  w75 h75, images\adv-azir.png
+Gui, add, picture, x300 y%BOTTOMADVY1%  w75 h75, %profile75%\viktor-profile-75x75-border.png
+Gui, add, picture, x300 y%BOTTOMADVY2%  w75 h75, %profile75%\draven-profile-75x75-border.png
+Gui, add, picture, x300 y%BOTTOMADVY3%  w75 h75, %profile75%\azir-profile-75x75-border.png
 ;3
-Gui, add, picture, x375 y%BOTTOMADVY1%  w75 h75, images\adv-elder.png
-Gui, add, picture, x375 y%BOTTOMADVY2%  w75 h75, images\adv-kaisa.png
-Gui, add, picture, x375 y%BOTTOMADVY3%  w75 h75, images\adv-thresh.png
+Gui, add, picture, x375 y%BOTTOMADVY1%  w75 h75, %profile75%\elder-profile-75x75-border.png
+Gui, add, picture, x375 y%BOTTOMADVY2%  w75 h75, %profile75%\kaisa-profile-75x75-border.png
+Gui, add, picture, x375 y%BOTTOMADVY3%  w75 h75, %profile75%\thresh-profile-75x75-border.png
 ;3.5
-Gui, add, picture, x450 y%BOTTOMADVY1%  w75 h75, images\adv-fiddle.png
-Gui, add, picture, x450 y%BOTTOMADVY2%  w75 h75, images\adv-heist.png
-Gui, add, picture, x450 y%BOTTOMADVY2%  w75 h75, images\adv-garen.png
+Gui, add, picture, x450 y%BOTTOMADVY1%  w75 h75, %profile75%\fiddle1-profile-75x75-border.png
+Gui, add, picture, x450 y%BOTTOMADVY2%  w75 h75, %profile75%\heist-profile-75x75-border.png
+Gui, add, picture, x450 y%BOTTOMADVY3%  w75 h75, %profile75%\garen-profile-75x75-border.png
 ;galio
-Gui, add, picture, x550 y%BOTTOMADVY1%  w75 h75, images\adv-galio.png
+Gui, add, picture, x545 y%BOTTOMADVY1x%  w100 h100, %profile100%\galio-profile-100x100-border.png
 ;lissandra
-Gui, add, picture, x670 y%BOTTOMADVY1%  w75 h75, images\adv-liss.png
+Gui, add, picture, x658 y%BOTTOMADVY1x%  w100 h100, %profile100%\liss-profile-100x100-border.png
 ;yasuo
-Gui, add, picture, x800 y%BOTTOMADVY1%  w75 h75, images\adv-yasuo.png
+Gui, add, picture, x793 y%BOTTOMADVY1x%  w100 h100, %profile100%\yasuo-profile-100x100-border.png
 ;asol
-Gui, add, picture, x910 y%BOTTOMADVY1%  w75 h75, images\adv-asol.png
+Gui, add, picture, x905 y%BOTTOMADVY1x% w100 h100, %profile100%\asol-profile-100x100-border.png
 ;arcane warwick 
-Gui, add, picture, x1035 y%BOTTOMADVY1%  w75 h75, images\adv-aww.png
+Gui, add, picture, x1030 y%BOTTOMADVY1x%  w100 h100, %profile100%\warwick-profile-100x100-border.png
 ;Swain
-Gui, add, picture, x1170 y%BOTTOMADVY1%  w75 h75, images\adv-swain.png
-Gui, add, picture, x1170 y%BOTTOMADVY2%  w75 h75, images\adv-fizz.png
+Gui, add, picture, x1153 y%BOTTOMADVY1x%  w100 h100, %profile100%\swain-profile-100x100-border.png
+Gui, add, picture, x1153 y%BOTTOMADVY2x%  w100 h100, %profile100%\fizz-profile-100x100-border.png
 ;Viego/Fiddle
-Gui, add, picture, x1320 y%BOTTOMADVY1%  w75 h75, images\adv-viego.png
-Gui, add, picture, x1320 y%BOTTOMADVY2%  w75 h75, images\adv-nfiddle.png
-Gui, add, picture, x1320 y%BOTTOMADVY3%  w75 h75, images\adv-karma.png
+Gui, add, picture, x1300 y%BOTTOMADVY1x%  w100 h100, %profile100%\viego-profile-100x100-border.png
+Gui, add, picture, x1300 y%BOTTOMADVY2x%  w100 h100, %profile100%\fiddle2-profile-100x100-border.png
+Gui, add, picture, x1300 y%BOTTOMADVY3x%  w100 h100, %profile100%\karma-profile-100x100-border.png
+
 ;arcane asol
-Gui, add, picture, x1480 y%BOTTOMADVY1%  w75 h75, images\adv-asol.png
+Gui, add, picture, x1475 y%BOTTOMADVY1% w100 h100, %profile100%\asol-profile-100x100-border.png
+
+;Testing
 
 ;********************************************************************************
 
@@ -284,9 +350,12 @@ Gui, add , DropDownList, x80 y405 w65  vTargetChamplvl gSubmitTargetChamplvl, 1|
 ;
 Gui, add , Edit, x0 y365 ReadOnly vfriendlytext1, Enter your champion's XP in the box below 
 Gui, add , Edit, x150 y405 ReadOnly vfriendlytext2, Select your target level from the drop down menu
-Gui, add , Edit, x0 y310 w485 h50 ReadOnly vfriendlytext3 -vscroll, The numbers above show how many times you need to beat that adventure plus any additional battles to reach your target level
 
-;Gui, add , DropDownList, x680 y405 w65  vGetLevelXp gSubmitGetLevelXp, 1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16|17|18|19|20|21|22|23|24|25|26|27|28|29|30||31|32|33|34|35|36|37|38|39|40|41|42|43|44|45|46|47|48|49|50
+;increase font size if the DPI is too high
+if(A_ScreenDPI >= 144)
+Gui, Font, s12, Arial
+
+Gui, add , Edit, x0 y310 w485 h50 ReadOnly vfriendlytext3 -vscroll, The numbers above show how many times you need to beat that adventure plus any additional battles to reach your target level
 
 ;********************************************************************************
 
@@ -297,12 +366,9 @@ Gui, add , Edit, x0 y310 w485 h50 ReadOnly vfriendlytext3 -vscroll, The numbers 
 ;Gui, add , Edit, vamountsofweeks xm+723 y380 w125 h28 ReadOnly, Weeks 
 ;Gui, add, Picture, x750 y325, images\legend_icon.png
 
-
 ;********************************************************************************
 
 ;Start the GUI
-Gui, -alwaysontop
-;Gui, Color, E1E1E1
 Gui, Show, w1600 h450, Path of Champions XP Calculator Patch 6.7
 
 ;--------------------------------------------------------------------------------------------------
@@ -325,6 +391,7 @@ SubmitCurrentChampXPString:
 		;MsgBox % CurrentChampXPString
 		PosCor := GetCursorCorrection(CurrentChampXPString)
 		;MsgBox % PosCor
+		;reset the cursor to position it was at when the invalid character was removed
 		Send, {Right %PosCor%}		
 		return
 	}
@@ -337,7 +404,9 @@ SubmitCurrentChampXPString:
 		GuiControl,Text, CurrentChampXPString, %CurrentChampXPString%
 	}
 	
+	
 	;This will fail infinitely if its bigger than MAX_CHAMP_LVL
+	;This is to increase the level from drop down menu to be above the XP amount entered
 	if(CurrentChampXPString>ChampXPList[TargetChamplvl])
 	{
 	
@@ -348,16 +417,12 @@ SubmitCurrentChampXPString:
 		}
 		
 		GuiControl,choose,TargetChamplvl,%TargetChamplvl%
-		
-		;CurrentChampXPString := ChampXPList[TargetChamplvl]
-		;GuiControl,Text, CurrentChampXPString, %CurrentChampXPString%
 	}
 		
-
 	;Update text boxes
 	UpdateRuns()
 	
-	;Will clear text boxes if 0 or above max xp is entered 
+	;Will clear text boxes if invalid XP amount if present
 	ClearRuns()
 	
 	;Extra code in case of unexpected bugs
@@ -398,14 +463,6 @@ SubmitTargetChamplvl:
 	}
 	
 return	
-;********************************************************************************
-;For future release, problem is that I can't get it to sync with the target level drop down menu
-;SubmitGetLevelXp:
-;	Gui,+OwnDialogs
-;	Gui,Submit,NoHide
-;	CurrentChampXPString := ChampXPList[GetLevelXp]	
-;	GuiControl,Text, CurrentChampXPString, %CurrentChampXPString%
-;return	
 
 ;--------------------------------------------------------------------------------------------------
 ; Label Functions for Legends XP 
@@ -452,9 +509,9 @@ SubmitCurrentLegendlvl:
 	
 	else
 	{
-	WeekstoLegends := (LegendXPList[TargetLegendlvl] - CurrentLegendXPString - LegendXPList[CurrentLegendlvl])  / WEEKLY_LEGEND_XP
-	WeekstoLegends = %WeekstoLegends%
-	GuiControl,Text, amountsofweeks,%WeekstoLegends% Weeks
+		WeekstoLegends := (LegendXPList[TargetLegendlvl] - CurrentLegendXPString - LegendXPList[CurrentLegendlvl])  / WEEKLY_LEGEND_XP
+		WeekstoLegends = %WeekstoLegends%
+		GuiControl,Text, amountsofweeks,%WeekstoLegends% Weeks
 	}
 	
 return
@@ -518,21 +575,6 @@ ClearRuns()
 	if(CurrentChampXPString = "" || CurrentChampXPString >= MAX_CHAMP_XP || CurrentChampXPString = 0)
 	{
 		ForceZero()
-		;GuiControl,Text, halfstar, 0
-		;GuiControl,Text, onestar, 0
-		;GuiControl,Text, oneandhalfstar, 0
-		;GuiControl,Text, twostar, 0
-		;GuiControl,Text, twoandhalfstar, 0
-		;GuiControl,Text, threestar, 0
-		;GuiControl,Text, threeandhalfstar, 0
-		;GuiControl,Text, galiostar, 0
-		;GuiControl,Text, lissstar, 0
-		;GuiControl,Text, yasuostar, 0
-		;GuiControl,Text, asolstar, 0
-		;GuiControl,Text, warwickstar, 0
-		;GuiControl,Text, fivestar, 0
-		;GuiControl,Text, sixstar, 0
-		;GuiControl,Text, aasolstar, 0 
 	}
 		
 	return
@@ -540,277 +582,48 @@ ClearRuns()
 
 UpdateRuns()
 {
-	global
-	
-	;	<.5   1   1.5   2    2.5    3    3.5   GAL  Liss  Yasuo  Asol   N5    N6
-	;1 - .5*---------------------------------------------------------------------------------------
+	global	
 
-	ctr := 0
-	
-	frac_adv := mod( (ChampXPList[TargetChamplvl] - CurrentChampXPString),StarXP[1])
-	;MsgBox % frac_adv
-	while frac_adv>halfstarXP[++ctr] && ctr<4
-	{}	
-	
-	AmountofAdventures := floor((ChampXPList[TargetChamplvl] - CurrentChampXPString) / StarXP[1])
-	GuiControl,Text, halfstar, %AmountofAdventures%+%ctr%/4
-	
-	if(ctr = 4)
-	{
-		AmountofAdventures++
-		GuiControl,Text, halfstar, %AmountofAdventures%
+	loop := 1 
+	; MAX_UNIQUE_ADVENTURES_XP is currently the total number of adventures that provide unique XP
+	; This excludes special conditions like longer or shorter adventures  and 1* WW
+	while ( loop <= MAX_UNIQUE_ADVENTURES_XP )
+	{	
+		; Update the Amount of adventures and battles ctr by inputing the loop# which acts as an index
+		; to pointers of LUTs that provide the values for amounts of battles and XP amounts
+		UpdateRunText(loop, BATTLES_LUT[loop], AdventureXP_LUT[loop])
+		
+		; I need to get the Text_LUT text and Battles_LUT like this to make it a string for the GuiControl
+		controlName := AdventureText_LUT[loop]
+		battleNum := BATTLES_LUT[loop]
+		
+		; Update the GUI text dynamically
+		GuiControl, Text, %controlName%, %AmountofAdventures%+%ctr%/%battleNum%
+		
+		loop++
 	}
-	
-	;2 - 1*---------------------------------------------------------------------------------------
-	
-	ctr := 0
-	
-	frac_adv := mod( (ChampXPList[TargetChamplvl] - CurrentChampXPString),StarXP[2])
-	;MsgBox % frac_adv
-	while frac_adv>onestarXP[++ctr] && ctr<7
-	{}	
-	
-	AmountofAdventures := floor((ChampXPList[TargetChamplvl] - CurrentChampXPString) / StarXP[2])
-	GuiControl,Text, onestar, %AmountofAdventures%+%ctr%/7
-	
-	if(ctr = 7)
-	{
-		AmountofAdventures++
-		GuiControl,Text, onestar, %AmountofAdventures%
-	}
-	
-	;3 - 1.5*---------------------------------------------------------------------------------------
-	
-	ctr := 0
-	
-	frac_adv := mod( (ChampXPList[TargetChamplvl] - CurrentChampXPString),StarXP[3])
-	;MsgBox % frac_adv
-	while frac_adv>oneandstarXP[++ctr] && ctr<7
-	{}	
-	
-	AmountofAdventures := floor((ChampXPList[TargetChamplvl] - CurrentChampXPString) / StarXP[3])
-	GuiControl,Text, oneandhalfstar, %AmountofAdventures%+%ctr%/7
-	
-	if(ctr = 7)
-	{
-		AmountofAdventures++
-		GuiControl,Text, oneandhalfstar, %AmountofAdventures%
-	}
-	
-	
-	;4 - 2*---------------------------------------------------------------------------------------
-
-	
-	ctr := 0
-	
-	frac_adv := mod( (ChampXPList[TargetChamplvl] - CurrentChampXPString),StarXP[4])
-	;MsgBox % frac_adv
-	while frac_adv>twostarXP[++ctr] && ctr<7
-	{}	
-	
-	AmountofAdventures := floor((ChampXPList[TargetChamplvl] - CurrentChampXPString) / StarXP[4])
-	GuiControl,Text, twostar, %AmountofAdventures%+%ctr%/7
-	
-	if(ctr = 7)
-	{
-		AmountofAdventures++
-		GuiControl,Text, twostar, %AmountofAdventures%
-	}
-	
-	;5 - 2.5*--------------------------------------------------------------------------------------
-	ctr := 0
-	
-	frac_adv := mod( (ChampXPList[TargetChamplvl] - CurrentChampXPString),StarXP[5])
-	;MsgBox % frac_adv
-	while frac_adv>twoandstarXP[++ctr] && ctr<7
-	{}	
-	
-	AmountofAdventures := floor((ChampXPList[TargetChamplvl] - CurrentChampXPString) / StarXP[5])
-	GuiControl,Text, twoandhalfstar, %AmountofAdventures%+%ctr%/7
-	
-	if(ctr = 7)
-	{
-	AmountofAdventures++
-	GuiControl,Text, twoandhalfstar, %AmountofAdventures%
-	}
-	
-	;if (CurrentChampXPString == 0 )
-	;GuiControl,Text, twoandhalfstar, 
-	
-	;6 - 3*--------------------------------------------------------------------------------------------
-	ctr := 0
-	
-	frac_adv := mod( (ChampXPList[TargetChamplvl] - CurrentChampXPString),StarXP[6])
-	;MsgBox % frac_adv
-	while frac_adv>threestarXP[++ctr] && ctr<7
-	{}	
-	
-	AmountofAdventures := floor((ChampXPList[TargetChamplvl] - CurrentChampXPString) / StarXP[6])
-	GuiControl,Text, threestar, %AmountofAdventures%+%ctr%/7
-	
-	if(ctr = 7)
-	{
-	AmountofAdventures++
-	GuiControl,Text, threestar, %AmountofAdventures%
-	}
-	;7 - 3.5*------------------------------------------------------------------------------------------
-	ctr := 0
-	
-	frac_adv := mod( (ChampXPList[TargetChamplvl] - CurrentChampXPString),StarXP[7])
-	;MsgBox % frac_adv
-	while frac_adv>threehalfstarXP[++ctr] && ctr<7
-	{}	
-	
-	AmountofAdventures := floor((ChampXPList[TargetChamplvl] - CurrentChampXPString) / StarXP[7])
-	GuiControl,Text, threeandhalfstar, %AmountofAdventures%+%ctr%/7
-	
-	if(ctr = 9)
-	{
-	AmountofAdventures++
-	GuiControl,Text, threeandhalfstar, %AmountofAdventures%
-	}
-	
-	;8 - galio------------------------------------------------------------------------------------------
-	ctr := 0
-	
-	frac_adv := mod( (ChampXPList[TargetChamplvl] - CurrentChampXPString),StarXP[8])
-	;MsgBox % frac_adv
-	while frac_adv>GalioXP[++ctr] && ctr<9
-	{}	
-	
-	AmountofAdventures := floor((ChampXPList[TargetChamplvl] - CurrentChampXPString) / StarXP[8])
-	GuiControl,Text, galiostar, %AmountofAdventures%+%ctr%/9
-	
-	if(ctr = 9)
-	{
-	AmountofAdventures++
-	GuiControl,Text, galiostar, %AmountofAdventures%
-	}
-	
-	;9 - Liss--------------------------------------------------------------------------------------------
-	ctr := 0
-	
-	frac_adv := mod( (ChampXPList[TargetChamplvl] - CurrentChampXPString),StarXP[9])
-	;MsgBox % frac_adv
-	while frac_adv>lissXP [++ctr] && ctr<7
-	{}	
-	
-	AmountofAdventures := floor((ChampXPList[TargetChamplvl] - CurrentChampXPString) / StarXP[9])
-	GuiControl,Text, lissstar, %AmountofAdventures%+%ctr%/7
-	
-	if(ctr = 7)
-	{
-	AmountofAdventures++
-	GuiControl,Text, lissstar, %AmountofAdventures%
-	}
-	
-	;10 - Yasuo*-------------------------------------------------------------
-	ctr := 0
-	
-	frac_adv := mod( (ChampXPList[TargetChamplvl] - CurrentChampXPString),StarXP[10])
-	;MsgBox % frac_adv	
-	
-	while frac_adv>yasuoXP[++ctr] && ctr<7
-	{}
-	
-	AmountofAdventures := floor( (ChampXPList[TargetChamplvl] - CurrentChampXPString) / StarXP[10] )
-	GuiControl,Text, yasuostar, %AmountofAdventures%+%ctr%/7
-	
-	if(ctr = 7)
-	{
-	AmountofAdventures++
-	GuiControl,Text, yasuostar, %AmountofAdventures%
-	}
-	
-	;11 - Asol--------------------------------------------------------------------------------------------
-	ctr := 0
-	
-	frac_adv := mod( (ChampXPList[TargetChamplvl] - CurrentChampXPString),StarXP[11])
-	;MsgBox % frac_adv
-	while frac_adv>asolXP [++ctr] && ctr<12
-	{}	
-	
-	AmountofAdventures := floor((ChampXPList[TargetChamplvl] - CurrentChampXPString) / StarXP[11])
-	GuiControl,Text, asolstar, %AmountofAdventures%+%ctr%/12
-	
-	if(ctr = 12)
-	{
-	AmountofAdventures++
-	GuiControl,Text, asolstar, %AmountofAdventures%
-	}
-	
-	;12 - Warwick*-------------------------------------------------------------
-	ctr := 0
-	
-	frac_adv := mod( (ChampXPList[TargetChamplvl] - CurrentChampXPString),StarXP[12])
-	;MsgBox % frac_adv	
-	
-	while frac_adv>WarwickXP[++ctr] && ctr<8
-	{}
-	
-	AmountofAdventures := floor( (ChampXPList[TargetChamplvl] - CurrentChampXPString) / StarXP[12] )
-	GuiControl,Text, warwickstar, %AmountofAdventures%+%ctr%/8
-	
-	if(ctr = 8)
-	{
-	AmountofAdventures++
-	GuiControl,Text, warwickstar, %AmountofAdventures%
-	}
-	
-	;13 - 5*-------------------------------------------------------------
-	ctr := 0
-	
-	frac_adv := mod( (ChampXPList[TargetChamplvl] - CurrentChampXPString),StarXP[13])
-	;MsgBox % frac_adv
-	while frac_adv>fivestarXP[++ctr] && ctr<7
-	{}	
-	
-	AmountofAdventures := floor((ChampXPList[TargetChamplvl] - CurrentChampXPString) / StarXP[13])
-	GuiControl,Text, fivestar, %AmountofAdventures%+%ctr%/7
-	
-	if(ctr = 7)
-	{
-	AmountofAdventures++
-	GuiControl,Text, fivestar, %AmountofAdventures%
-	}
-	;14 - 6*-------------------------------------------------------------
-	ctr := 0
-	
-	frac_adv := mod( (ChampXPList[TargetChamplvl] - CurrentChampXPString),StarXP[14])
-	;MsgBox % frac_adv
-	while frac_adv>sixnightmareXP[++ctr] && ctr<7
-	{}	
-	
-	AmountofAdventures := floor((ChampXPList[TargetChamplvl] - CurrentChampXPString) / StarXP[14])
-	GuiControl,Text, sixstar, %AmountofAdventures%+%ctr%/7
-	
-	if(ctr = 7)
-	{
-	AmountofAdventures++
-	GuiControl,Text, sixstar, %AmountofAdventures%
-	}
-	;15 - 6.5*--------------------------------------------------------------------------
-	ctr := 0
-	
-	frac_adv := mod( (ChampXPList[TargetChamplvl] - CurrentChampXPString),StarXP[15])
-	;MsgBox % frac_adv
-	while frac_adv>ArcaneAsolXP[++ctr] && ctr<12
-	{}	
-	
-	AmountofAdventures := floor((ChampXPList[TargetChamplvl] - CurrentChampXPString) / StarXP[15])
-	GuiControl,Text, aasolstar, %AmountofAdventures%+%ctr%/12
-	
-	if(ctr = 12)
-	{
-	AmountofAdventures++
-	GuiControl,Text, aasolstar, %AmountofAdventures%
-	}
-	
-	;	<.5   1   1.5   2    2.5    3    3.5   GAL  Liss  Yasuo  Asol   N5    N6
 	
 	return
 }	
 
+UpdateRunText(Adventure, MaxCtr, ByRef AdventureLUT)
+{
+	global	
+	
+	ctr := 0
+	
+	frac_adv := mod( (ChampXPList[TargetChamplvl] - CurrentChampXPString),StarXP[Adventure])
+	while frac_adv>AdventureLUT[++ctr] && ctr<MaxCtr
+	{}	
+	
+	AmountofAdventures := floor((ChampXPList[TargetChamplvl] - CurrentChampXPString) / StarXP[Adventure])
+
+	if(ctr = MaxCtr)
+	{
+		AmountofAdventures++
+		ctr := 0
+	}
+}	
 
 ;this a simple function used to set the cursor position if an invalid char is entered
 GetCursorCorrection(input)
@@ -831,18 +644,34 @@ GetCursorCorrection(input)
 	return 1
 
 }
-;prevent non-numbers
-;WM_CHAR(wParam, lParam)
-;{	
-;	If(A_GuiControl = %CurrentChampXPString% and !RegExMatch(Chr(wParam), "^[0-9]*$")) ;
-;	{
-;		Return false
-;	}
-;}
 
-;Don't remember why I have this
-OnMessage(0x102, "WM_CHAR")
-return	
+CheckImages()
+{
+	FileRead, files, images\filelist.txt
+	missing := ""
 
+	Loop, Parse, files, `n, `r
+	{
+		f := Trim(A_LoopField)
+		if (f = "")
+        continue
+		if !FileExist("images\" . f)
+        missing .= f . "`n"
+	}
+
+	if (missing = "")
+	{
+		;MsgBox All files found!
+		return
+	}
+	
+	else	
+	{
+		MsgBox Missing files:`n`n%missing%
+		;ExitApp
+	}
+	
+	return
+}
 
 ^x::ExitApp
