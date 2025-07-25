@@ -1,4 +1,4 @@
-# TPOC2 Champion & Legend XP Calculator
+# TPOC2 Champion & Legend XP Calculator Patch 6.7 Update
 To start click the Green Code button in the top right corner and click download  
 Extract folder to where you want  
 You can use the .exe to start, but your antivirus might complain about it  
