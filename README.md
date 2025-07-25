@@ -1,10 +1,10 @@
 # TPOC2 Champion XP Calculator Patch 6.7 Update
-Install AHK to start running it
+Install AHK to start running it  
 To start click the Green Code button in the top right corner and click download  
-Extract the folder to where you want it to be 
-Start the .ahk to start it 
-
-Otherwise, download the exe from the releases section, but your computer anti-virus will definitely complain about it.
+Extract the folder to where you want it to be  
+Start the .ahk to start it  
+  
+Otherwise, download the exe from the releases section, but your computer anti-virus will definitely complain about it.  
   
 Usage:  
   
