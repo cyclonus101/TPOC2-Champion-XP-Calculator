@@ -12,7 +12,7 @@ profile75  := "images\profile\Pixels 75\"
 ; history
 ;--------------------------------------------------------------------------------------------------
 /*
-August 15/25 
+July 24/25 
 -Updated Adventure Icons
 -Updated to auto detect DPI settings
 -Cleaned up the updaterunstext code
