@@ -12,10 +12,14 @@ profile75  := "images\profile\Pixels 75\"
 ; history
 ;--------------------------------------------------------------------------------------------------
 /*
+
+August 4/24
+->Fixed some issues with the LUTs alignments
+
 July 24/25 
--Updated Adventure Icons
--Updated to auto detect DPI settings
--Cleaned up the updaterunstext code
+->Updated Adventure Icons
+->Updated to auto detect DPI settings
+->Cleaned up the updaterunstext code
 
 Bugs:
 ->If entering too many invalid characters at the same time then will be able to be entered into the textbox
@@ -98,18 +102,18 @@ sixnightmareXP   := [150,300,2410,3315,4070,4825,6030]      ;7
 ArcaneAsolXP	 := [170,340, 510,1545,3955,4815,5675,6710,7570,8430,9290,10670] ;12
 ; Patch 6.7 - 15 types of battles
 
-;didn't bother adding it to the main calculator
+;didn't bother with it
 LongLissXP       := [110,220,1785,2345,3910,4470,5030,5925] ;8
 
-;LUT for pointers to the XP LUTs that are used by the updaterunstext functions
-AdventureXP_LUT := [halfstarXP,onestarXP,oneandstarXP,twostarXP,twoandstarXP,threestarXP,threehalfstarXP,GalioXP,ASolXP,LissXP,YasuoXP,WarwickXP,fivestarXP,sixnightmareXP,ArcaneAsolXP]
+;LUT for Pointers to XP tables
+AdventureXP_LUT :=   [halfstarXP, onestarXP,     oneandstarXP, twostarXP,     twoandstarXP,  threestarXP,    threehalfstarXP,     GalioXP,     LissXP,    YasuoXP,     ASolXP,     WarwickXP, fivestarXP, sixnightmareXP, ArcaneAsolXP]
+;LUT for Pointers to the XP text boxs
+;This needs to be quotes for the updaterunstext to work
+AdventureText_LUT := ["halfstar","onestar" , "oneandhalfstar", "twostar", "twoandhalfstar",  "threestar", "threeandhalfstar", "galiostar", "lissStar","yasuoStar", "asolstar", "warwickstar", "fivestar",      "sixstar",  "aasolstar"]       
+;LUT for battles per adventure
+               ;.5 1*  to  3.5,  Gal, Lis, Yas, ASOL,  WW, 5k, 6k, ASOL
+BATTLES_LUT := [ 4,7,7,7,7,7,7,    9,   7,   7,   12,   8,  7,  7,   12]
 
-;This is a lut for the names of the gui text boxes, these need to be quotes for the updaterunstext to work
-AdventureText_LUT := ["halfstar","onestar","oneandhalfstar","twostar","twoandhalfstar","threestar","threeandhalfstar","galiostar","lissStar","yasuoStar","asolstar","warwickstar","fivestar","sixstar","aasolstar"]       
-
-;LUT for amount of battles per adventure
-               ;.5 1*  to  3.5 Gal ASOL Lis Yas, WW,5k,6k ASOL
-BATTLES_LUT := [ 4,7,7,7,7,7,7,  9,  12, 7,   7,  8, 7, 7, 12]
 
 ;****************************************************************
 
