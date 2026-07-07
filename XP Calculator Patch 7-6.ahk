@@ -17,6 +17,13 @@ TODO:
 -> I want to add adventures with odd XP rewards (1* WW), but it's difficult for spacing reasons
 -> Update the lower star adventure icons to be like the others
 
+July 2026
+-> Updated for Patch 7.6
+-> Added SB Nami
+-> Added World + Nightmare Naga
+-> Added Nightmare Zoe
+-> Fixed bug where adding Naut/Zed adventure was adding the wrong XP
+
 Feb 10/26
 -> Updated for Patch 7.2
 -> Updated SB Seraphine position so she's in the unique XP blocks rather than sharing with Galio/A Garen
@@ -88,9 +95,9 @@ Oct 14/24 - Updated for patch 5.10 "Runeterror" Patch
 
 ;****************************************************************************************************************************************
 ;This LUT is used for quickly searching the XP amount per adventures in the UpdateRuns function in Macro & Functions
-;				  <.5   1   1.5   2    2.5    3    3.5   GAL SBSERA Liss  Yasuo  Asol  Arcane WW ROG YI  N5    N6   Arcane Asol  
-StarXP       := [ 100, 305, 605, 985, 1425, 1925, 3015, 3100, 3200, 4360,  4470, 4505,    4840,   5100, 5230, 6030,   10670]
-;				   1    2    3    4     5     6     7    8      9    10    11     12         13    14    15      16		17	
+;				  <.5   1   1.5   2    2.5    3  SBNAMI 3.5   GAL SBSERA Liss  Yasuo  Asol  Arcane WW ROG YI  N5    N6   Arcane Asol  NGTZOE
+StarXP       := [ 100, 305, 605, 985, 1425, 1925, 2475, 3015, 3100, 3200, 4360,  4470, 4505,    4840,   5100, 5230, 6030,   10670,    11970]
+;				   1    2    3    4     5     6     7    8      9    10    11     12    13        14      15   16    17	     18         19
 ;LUT for the SubmitCurrentLegendXPString in Label Functions for Legends XP section 
 ;Amount of XP for each legend to level up to the next level from 1 to 80                                                                                                                         31     32    33         35                            40                            45                            50                            55          57               60           62                65                68            70                   73     74     75                    80
 LegendXP     := [1000,2000,2500,3500,4000,4500,5000,5500,6000,7000,8000,9000,10000,11000,12000,13000,15000,17000,19000,21000,23000,25000,27000,29000,31000,33000,35000,37000,39000,30000,30000,30000,30000,30000,30000,30000,30000,30000,30000,30000,30000,30000,30000,30000,30000,30000,30000,30000,30000,45000,45000,45000,45000,45000,45000,60000,60000,60000,60000,60000,80000,80000,80000,80000,80000,80000,100000,100000,100000,100000,100000,100000,120000,120000,120000,120000,120000,120000,120000]
@@ -105,24 +112,31 @@ ChampXPList  := [0,50,150,300,500,800,1250,1750,2310,2980,3780,4710,5780,6990,83
 
 ADD_XP_LUT := {  TEEMO:StarXP[1], MF:StarXP[1]
     , GAREN:   StarXP[2],  LULU:     StarXP[2],  ILLAOI:  StarXP[2]
-    , GP:      StarXP[3],  EZ:       StarXP[3],  NAUTZED: StarXP[3]
-    , DAR:     StarXP[4],  SETT:     StarXP[4],  AZIR:    StarXP[4]
+    , GP:      StarXP[3],  EZ:       StarXP[3]  
+    , NAUTZED: StarXP[4],  DAR:      StarXP[4],  SETT:    StarXP[4], AZIR:    StarXP[4]
     , VIKDRAV: StarXP[5],  SBTEEMO1: StarXP[5],  SAMIRA:  StarXP[5], KALISTA: StarXP[5],  TFTCAIT:  StarXP[5]
 	, THRKAI:  StarXP[6],  ELDHEI:   StarXP[6],  MORDE:   StarXP[6], NASUS:   StarXP[6]
-    , FIDDLE1: StarXP[7],  DIANA:    StarXP[7],  TFTMF:   StarXP[7]
-	, GALIO:   StarXP[8],  AGAREN:   StarXP[8],  SBSERA:  StarXP[9]
-	, LISS:    StarXP[10], YAS:      StarXP[11], ASOL:    StarXP[12], WW:       StarXP[13], ROGUEYI:  StarXP[14]
-	, SWAIN:   StarXP[15], FIZZ:     StarXP[15], VOLINAUT:StarXP[15], TFHEIST:  StarXP[15], TFTLUX:   StarXP[15]
-	, FIDVIE:  StarXP[16], AKARMA:   StarXP[16], TITELD:  StarXP[16], SBTEEMO2: StarXP[16], TFTBARON: StarXP[16]
-	, AASOL: StarXP[17] }
+	, SBNAMI:  StarXP[7],  WNAGA:    StarXP[7]
+    , FIDDLE1: StarXP[8],  DIANA:    StarXP[8],  TFTMF:   StarXP[8]
+	, GALIO:   StarXP[9],  AGAREN:   StarXP[9]  
+	, SBSERA:  StarXP[10]
+	, LISS:    StarXP[11]
+	, YAS:     StarXP[12]
+	, ASOL:    StarXP[13]
+	, WW:      StarXP[14]
+	, ROGUEYI: StarXP[15]
+	, SWAIN:   StarXP[16], FIZZ:     StarXP[16], VOLINAUT:StarXP[16], TFHEIST:  StarXP[16], TFTLUX:   StarXP[16]
+	, FIDVIE:  StarXP[17], AKARMA:   StarXP[17], TITELD:  StarXP[17], SBTEEMO2: StarXP[17], TFTBARON: StarXP[17]
+	, AASOL:   StarXP[18]
+	, NGTZOE:  StarXP[19] }
 	
-SUB_XP_LUT := { STAR1:StarXP[1], STAR2:StarXP[2], STAR3:StarXP[3], STAR4:StarXP[4], STAR5:StarXP[5],STAR6:StarXP[6],STAR7:StarXP[7],STAR8:StarXP[8],STAR9:StarXP[9],STAR10:StarXP[10],STAR11:StarXP[11],STAR12:StarXP[12],STAR13:StarXP[13],STAR14:StarXP[14],STAR15:StarXP[15],STAR16:StarXP[16],STAR17:StarXP[17]}
+SUB_XP_LUT := { STAR1:StarXP[1], STAR2:StarXP[2], STAR3:StarXP[3], STAR4:StarXP[4], STAR5:StarXP[5],STAR6:StarXP[6],STAR7:StarXP[7],STAR8:StarXP[8],STAR9:StarXP[9],STAR10:StarXP[10],STAR11:StarXP[11],STAR12:StarXP[12],STAR13:StarXP[13],STAR14:StarXP[14],STAR15:StarXP[15],STAR16:StarXP[16],STAR17:StarXP[17],STAR18:StarXP[18],STAR19:StarXP[19]}
 
 	
 ;****************************************************************************************************************************************
-; Patch 7.2 - 17 types of battles
+; Patch 7.5 - 19 types of battles
 ; There are more battles with different XP structure, decided not to include all of them
-UNIQUE_ADVENTURE_XP_REWARDS = 17
+UNIQUE_ADVENTURE_XP_REWARDS = 19
 ; LUT for XP per battle won on an adventure
 halfstarXP       := [ 20, 40,  60, 100] ;4
 onestarXP        := [ 10, 20, 110, 160, 205, 245  305] ;7
@@ -130,6 +144,7 @@ oneandstarXP     := [ 15, 30, 215, 320, 410, 485, 605] ;7
 twostarXP        := [ 25, 50, 350, 520, 665, 790, 985] ;7
 twoandstarXP     := [ 35, 70, 565, 780, 960,1140,1425] ;7
 threestarXP		 := [ 50,100, 770,1060,1300,1540,1925] ;7
+SBNamiXP         := [ 60,120, 990,1360,1670,1980,2475] ; 7
 threehalfstarXP	 := [ 75,150,1230,1695,2045,2395,3015] ;7
 GalioXP          := [ 75,150, 615, 965,1315,1780,2130,2480,3100] ;9
 SBSeraXP         := [ 95,190,1505,1920,2185,2450,3200]
@@ -141,6 +156,8 @@ rogueyiXP        := [  0,130,1960,2745,3400,4055,5100]      ;7
 fivestarXP       := [130,260,2090,2875,3530,4185,5230]      ;7
 sixnightmareXP   := [150,300,2410,3315,4070,4825,6030]      ;7
 ArcaneAsolXP	 := [170,340, 510,1545,3955,4815,5675,6710,7570,8430,9290,10670] ;12
+NightmareZoeXP   := [130,260, 390,1390,1520,1650,2650,2780,2910,3910,4565, 5220,6220,6350,7005,7660,8660,9315,9970,11970] ; 20!
+;                      1  2    3    4    5    6   7    8     9    10  11    12   13   14    15  16   17    18   19   20
 
 BonusXP_LUT := [100,175,200,250,275,300,325,375,400,475,500,550,575,600,625,675,700,775,1000,1200]
 
@@ -148,13 +165,13 @@ BonusXP_LUT := [100,175,200,250,275,300,325,375,400,475,500,550,575,600,625,675,
 LongLissXP       := [110,220,1785,2345,3910,4470,5030,5925] ;8
 
 ;LUT for Pointers to XP tables
-AdventureXP_LUT :=   [halfstarXP, onestarXP,     oneandstarXP, twostarXP,     twoandstarXP,  threestarXP,    threehalfstarXP,     GalioXP, SBSeraXP,  LissXP,    YasuoXP,     ASolXP,     WarwickXP, rogueyiXP, fivestarXP, sixnightmareXP, ArcaneAsolXP]
+AdventureXP_LUT :=   [halfstarXP, onestarXP,     oneandstarXP, twostarXP,     twoandstarXP,  threestarXP, SBNamiXP,   threehalfstarXP,     GalioXP, SBSeraXP,  LissXP,    YasuoXP,     ASolXP,     WarwickXP, rogueyiXP, fivestarXP, sixnightmareXP, ArcaneAsolXP, NightmareZoeXP]
 ;LUT for Pointers to the XP text boxs
 ;This needs to be quotes for the updaterunstext to work
-AdventureText_LUT := ["halfstar","onestar" , "oneandhalfstar", "twostar", "twoandhalfstar",  "threestar", "threeandhalfstar", "galiostar","sbserastar", "lissStar","yasuoStar", "asolstar", "warwickstar", "rogueyistar", "fivestar",      "sixstar",  "aasolstar"]       
+AdventureText_LUT := ["halfstar","onestar" , "oneandhalfstar", "twostar", "twoandhalfstar",  "threestar", "sbnami", "threeandhalfstar", "galiostar","sbserastar", "lissStar","yasuoStar", "asolstar", "warwickstar", "rogueyistar", "fivestar",      "sixstar",  "aasolstar", "nightzoe"]       
 ;LUT for battles per adventure
-               ;.5 1*  to  3.5,  Gal, SBSERA, Lis, Yas, ASOL,  WW,SBYI,5k, 6k, AASOL
-BATTLES_LUT := [ 4,7,7,7,7,7,7,    9,    7,    7,   7,   12,   8,  7,   7,  7,  12]
+               ;.5 1*  to    3.5,  Gal, SBSERA, Lis, Yas, ASOL,  WW,SBYI,5k, 6k, AASOL NGTZOE
+BATTLES_LUT := [ 4,7,7,7,7,7,7,7,    9,    7,    7,   7,   12,   8,  7,   7,  7,  12,   20]
 ;****************************************************************************************************************************************
 ;lists for swapping between the low and mid tier adventures on the left side of the gui
 ;used by Show/HideControls functions
@@ -163,8 +180,8 @@ LowStarAdvList  := ["TEEMO","MF","GAREN","LULU","GP","EZ","ILLAOI","NAUTZED","DA
 LowStarTextList := ["halfstar","onestar","oneandhalfstar","twostar"]
 LowStarIconList := ["STAR1","STAR2","STAR3","STAR4"]
 
-MidStarAdvList  := ["VIKDRAV","KALISTA","TFTCAIT","SBTEEMO1","SAMIRA","THRKAI","FIDDLE1","DIANA","TFTMF","ELDHEI","MORDE","NASUS","AGAREN","GALIO"]
-MidStarTextList := ["twoandhalfstar","threestar","threeandhalfstar","galiostar"]
+MidStarAdvList  := ["VIKDRAV","KALISTA","TFTCAIT","SBTEEMO1","SAMIRA","THRKAI","SBNAMI0","WNAGA","FIDDLE1","DIANA","TFTMF","ELDHEI","MORDE","NASUS"]
+MidStarTextList := ["twoandhalfstar","threestar","threeandhalfstar","sbnami"]
 MidStarIconList := ["STAR5","STAR6","STAR7","STAR8"]
 
 
@@ -201,30 +218,18 @@ WEEKLY_LEGEND_XP := 27000
 
 
 ;Text Boxs X/Y Coord*****************************************
-TEXTX0S :=  13  
-TEXTX1S := 113
-TEXTX2S := 213
-TEXTX3S := 313
-TEXTX4S := 413	
-TEXTX5S := 513
-TEXTX6S := 613
-TEXTX7S := 713
-TEXTX8S := 813
-
-;below was for when I was 125pix icons
-TEXTX0 :=  30 
-TEXTX1 := 150
-TEXTX2 := 275
-TEXTX3 := 425 
-TEXTX4 := 425
-
-TEXTX5 := 550 
-TEXTX6 := 850
-TEXTX7 := 1013
-
-TEXTX8 := 875
-TEXTX9 := 1000
-TEXTX10 := 1125
+TEXTX0  :=   13  
+TEXTX1  :=  113
+TEXTX2  :=  213
+TEXTX3  :=  313
+TEXTX4  :=  413	
+TEXTX5  :=  513
+TEXTX6  :=  613
+TEXTX7  :=  713
+TEXTX8  :=  813
+TEXTX9  :=  913
+TEXTX10 := 1013
+TEXTX11 := 1113
 
 TEXTY1 := 50
 TEXTY2 := 200 
@@ -232,44 +237,27 @@ TEXTY3 := 350
 
 ;For Star Icons X/Y Coord************************************************
 
-;STARY0 := 25
-;STARY1 := 200
-
 STARY := 0
 STARY0 := 25
 STARY1 := 175
 STARY2 := 325
 STARY3 := 475
 
-STARX0 :=  13
-STARX1 := 113
-STARX2 := 213
-STARX3 := 313
-STARX4 := 413
-STARX5 := 525
-
-STARX8 := 850
-STARX9 := 1000
-STARX10 := 1125
+STARX0 := 113
+STARX1 := 213
+STARX2 := 313
+STARX3 := 413
+STARX4 := 513
+STARX5 := 600
+STARX6 := 700
+STARX7 := 800
+STARX8 := 900
+STARX9 := 1013
+STARX10 := 1100
 
 ;For Adventure Icons X/Y Coord*******************************************
-ICONSLOTX1 :=0 
-ICONSLOTX2 :=125 
-ICONSLOTX3 :=250 
-ICONSLOTX4 :=400 
 
-ICONSLOTX5 :=525 
-ICONSLOTX6 :=650
-ICONSLOTX7 :=725 
-ICONSLOTX8 :=850
-ICONSLOTX9 :=975
-ICONSLOTX10 :=1100
-
-ICONSLOTX6L :=700
-ICONSLOTX7L :=825 
-ICONSLOTX8L :=987
-ICONSLOTX9L :=1150 
-
+ICONSLOTY0 := 0
 ICONSLOTY1 := 75
 ICONSLOTY2 := 200
 ICONSLOTY3 := 325
@@ -280,23 +268,31 @@ ICONSLOTY22 := 225
 ICONSLOTY33 := 375
 ICONSLOTY44 := 525
  
-ICONSLOTX0S :=   0
-ICONSLOTX1S := 100
-ICONSLOTX2S := 200
-ICONSLOTX3S := 300
-ICONSLOTX4S := 400
-ICONSLOTX5S := 500
-ICONSLOTX6S := 600
-ICONSLOTX7S := 700
-ICONSLOTX8S := 800
-ICONSLOTX9S := 900
+ICONSLOTX0  :=   0
+ICONSLOTX1  := 100
+ICONSLOTX2  := 200
+ICONSLOTX3  := 300
+ICONSLOTX4  := 400
+ICONSLOTX5  := 500
+ICONSLOTX6  := 600
+ICONSLOTX7  := 700
+ICONSLOTX8  := 800
+ICONSLOTX9  := 900
+ICONSLOTX10 := 1000
+ICONSLOTX11 := 1100
 
-ICONSLOTY1S := 75
-ICONSLOTY2S := 175
-ICONSLOTY3S := 275
-ICONSLOTY4S := 375
-ICONSLOTY5S := 475
-ICONSLOTY6S := 575
+ICONSLOTY1 := 75
+ICONSLOTY2 := 175
+ICONSLOTY3 := 275
+ICONSLOTY4 := 375
+ICONSLOTY5 := 475
+ICONSLOTY6 := 575
+
+zoom := 1.1
+imgW := 2048 * zoom
+imgH := 1024 * zoom
+xOffset := -350
+yOffset := -050
 ;--------------------------------------------------------------------------------------------------
 ; Prechecks
 ;--------------------------------------------------------------------------------------------------
@@ -317,7 +313,7 @@ Gui, +dpiscale -alwaysontop ;enable dpi scaling
 
 Gui, Font, s12, Arial 
 
-Gui, Add, Picture, x0-20 y0, images\rogues-2048-1024.png 
+Gui, Add, Picture, x%xOffset% y%yOffset% w%imgW% h%imgH%, images\naga-2048-1024.png 
 
 
 ;Debug TextBoxes
@@ -325,175 +321,194 @@ Gui, Add, Picture, x0-20 y0, images\rogues-2048-1024.png
 ;************************************************************************
 ;Text Boxes - Adventures to Win
 ;Normal Adventures
-Gui, add , Edit, vhalfstar         x%TEXTX0S% y%TEXTY1% w75 h25 ReadOnly
-Gui, add , Edit, vonestar          x%TEXTX1S% y%TEXTY1% w75 h25 ReadOnly
-Gui, add , Edit, voneandhalfstar   x%TEXTX2S% y%TEXTY1% w75 h25 ReadOnly
-Gui, add , Edit, vtwostar          x%TEXTX3S% y%TEXTY1% w75 h25 ReadOnly
+Gui, add , Edit, vhalfstar         x%TEXTX2% y%TEXTY1% w75 h25 ReadOnly
+Gui, add , Edit, vonestar          x%TEXTX3% y%TEXTY1% w75 h25 ReadOnly
+Gui, add , Edit, voneandhalfstar   x%TEXTX4% y%TEXTY1% w75 h25 ReadOnly
+Gui, add , Edit, vtwostar          x%TEXTX5% y%TEXTY1% w75 h25 ReadOnly
 ;by default 2.5*+ adventures are show, so hide low star images												  
 HideControls(LowStarTextList)
 
-Gui, add , Edit, vtwoandhalfstar   x%TEXTX0S% y%TEXTY1% w75 h25 ReadOnly
-Gui, add , Edit, vthreestar        x%TEXTX1S% y%TEXTY1% w75 h25 ReadOnly
-Gui, add , Edit, vthreeandhalfstar x%TEXTX2S% y%TEXTY1% w75 h25 ReadOnly
+Gui, add , Edit, vtwoandhalfstar   x%TEXTX2% y%TEXTY1% w75 h25 ReadOnly
+Gui, add , Edit, vthreestar        x%TEXTX3% y%TEXTY1% w75 h25 ReadOnly
+Gui, add , Edit, vsbnami           x%TEXTX4% y%TEXTY1% w75 h25 ReadOnly
+Gui, add , Edit, vthreeandhalfstar x%TEXTX5% y%TEXTY1% w75 h25 ReadOnly
 
 ;Special Adventures
-Gui, add , Edit, vgaliostar        x%TEXTX3S%  y%TEXTY1%  w75 h25 ReadOnly
+Gui, add , Edit, vgaliostar        x%TEXTX6%  y%TEXTY1%  w75 h25 ReadOnly
 
 
-Gui, add , Edit, vlissStar         x%TEXTX4S%  y%TEXTY3%  w75 h25 ReadOnly
-Gui, add , Edit, vasolstar         x%TEXTX4S%  y%TEXTY2%  w75 h25 ReadOnly
-Gui, add , Edit, vsbserastar       x%TEXTX4S%  y%TEXTY1%  w75 h25 ReadOnly
+Gui, add , Edit, vlissStar         x%TEXTX7%  y%TEXTY3%  w75 h25 ReadOnly
+Gui, add , Edit, vasolstar         x%TEXTX7%  y%TEXTY2%  w75 h25 ReadOnly
+Gui, add , Edit, vsbserastar       x%TEXTX7%  y%TEXTY1%  w75 h25 ReadOnly
 
-Gui, add , Edit, vyasuoStar        x%TEXTX5S%  y%TEXTY1%  w75 h25 ReadOnly
-Gui, add , Edit, vwarwickstar      x%TEXTX5S%  y%TEXTY2%  w75 h25 ReadOnly
-Gui, add , Edit, vrogueyistar      x%TEXTX5S%  y%TEXTY3%  w75 h25 ReadOnly
+Gui, add , Edit, vyasuoStar        x%TEXTX8%  y%TEXTY1%  w75 h25 ReadOnly
+Gui, add , Edit, vwarwickstar      x%TEXTX8%  y%TEXTY2%  w75 h25 ReadOnly
+Gui, add , Edit, vrogueyistar      x%TEXTX8%  y%TEXTY3%  w75 h25 ReadOnly
 
-Gui, add , Edit, vfivestar         x%TEXTX6S%  y%TEXTY1%  w75 h25 ReadOnly
-Gui, add , Edit, vsixstar          x%TEXTX7S%  y%TEXTY1%  w75 h25 ReadOnly
-Gui, add , Edit, vaasolstar        x%TEXTX8S%  y%TEXTY1%  w75 h25 ReadOnly
+Gui, add , Edit, vfivestar         x%TEXTX9%  y%TEXTY1%  w75 h25 ReadOnly
+Gui, add , Edit, vsixstar          x%TEXTX10%  y%TEXTY1%  w75 h25 ReadOnly
+Gui, add , Edit, vaasolstar        x%TEXTX11%  y%TEXTY1%  w75 h25 ReadOnly
+Gui, add , Edit, vnightzoe         x%TEXTX11%  y%TEXTY2%  w75 h25 ReadOnly
 
 ;Images - Star picture locations**********************************************************
 
 ; .5 star
-Gui, add, picture, vSTAR1 x%STARX0% y%STARY0%  w12 h25 gSubXP, %STARS%\0HALFSTAR.png
+Gui, add, picture, vSTAR1 x%STARX1% y%STARY0%  w12 h25 gSubXP, %STARS%\0HALFSTAR.png
 ; 1 star           
-Gui, add, picture, vSTAR2 x%STARX1% y%STARY0%  w25 h25 gSubXP, %STARS%\1STAR.png
+Gui, add, picture, vSTAR2 x%STARX2% y%STARY0%  w25 h25 gSubXP, %STARS%\1STAR.png
 ; 1.5 star      
-Gui, add, picture, vSTAR3 x%STARX2% y%STARY0%  w37 h25 gSubXP, %STARS%\1HALFSTAR.png
+Gui, add, picture, vSTAR3 x%STARX3% y%STARY0%  w37 h25 gSubXP, %STARS%\1HALFSTAR.png
 ; 2 star
-Gui, add, picture, vSTAR4 x%STARX3% y%STARY0%  w50 h25 gSubXP, %STARS%\2STAR.png
+Gui, add, picture, vSTAR4 x%STARX4% y%STARY0%  w50 h25 gSubXP, %STARS%\2STAR.png
 
 ;by default 2.5*+ adventures are show, so hide low star images
 HideControls(LowStarIconList)
 
 ; 2.5 star
-Gui, add, picture, vSTAR5 x%STARX0% y%STARY0% w62 h25 gSubXP, %STARS%\2HALFSTAR.png
+Gui, add, picture, vSTAR5 x%STARX1% y%STARY0% w62 h25 gSubXP, %STARS%\2HALFSTAR.png
 ; 3 star           
-Gui, add, picture, vSTAR6 x%STARX1% y%STARY0% w75 h25 gSubXP, %STARS%\3STAR.png
-;Fiddle/Heist      
-Gui, add, picture, vSTAR7 x%STARX2% y%STARY0%  w87 h25 gSubXP, %STARS%\3HALFSTAR.png
-;Galio
-Gui, add, picture, vSTAR8 x%STARX3% y%STARY0%  w87 h25 gSubXP, %STARS%\3HALFSTAR.png
+Gui, add, picture, vSTAR6 x%STARX2% y%STARY0% w75 h25 gSubXP, %STARS%\3STAR.png
 
+; SB Nami / Naga           
+Gui, add, picture, vSTAR7 x%STARX3% y%STARY0% w75 h25 gSubXP, %STARS%\3STAR.png
+;Fiddle/Heist      
+Gui, add, picture, vSTAR8 x%STARX4% y%STARY0%  w87 h25 gSubXP, %STARS%\3HALFSTAR.png
+;Galio
+Gui, add, picture, vSTAR9 x%STARX5% y%STARY0%  w87 h25 gSubXP, %STARS%\3HALFSTAR.png
 ;SBSERA
-Gui, add, picture, vSTAR9 x%ICONSLOTX4S%  y%STARY0%  w100 h25 gSubXP, %STARS%\4STAR.png
-;ASol
-Gui, add, picture, vSTAR12 x%ICONSLOTX4S%  y%STARY1%  w100 h25 gSubXP, %STARS%\4STAR.png
+Gui, add, picture, vSTAR10 x%STARX6%  y%STARY0%  w100 h25 gSubXP, %STARS%\4STAR.png
 ;Liss
-Gui, add, picture, vSTAR10 x%ICONSLOTX4S%  y%STARY2%  w100 h25 gSubXP, %STARS%\5STAR.png
+Gui, add, picture, vSTAR11 x%STARX6%  y%STARY2%  w100 h25 gSubXP, %STARS%\5STAR.png   
+;ASol
+Gui, add, picture, vSTAR13 x%STARX6%  y%STARY1%  w100 h25 gSubXP, %STARS%\4STAR.png 
 ;Yasuo
-Gui, add, picture, vSTAR11 x%ICONSLOTX5S%  y%STARY0%  w100 h25 gSubXP, %STARS%\4HALFSTAR.png              
+Gui, add, picture, vSTAR12 x%STARX7%  y%STARY0%  w100 h25 gSubXP, %STARS%\4HALFSTAR.png          
 ;Arcane Warwick
-Gui, add, picture, vSTAR13 x%ICONSLOTX5S%  y%STARY1%  w100 h25 gSubXP,  %STARS%\4HALFSTAR.png
+Gui, add, picture, vSTAR14 x%STARX7%  y%STARY1%  w100 h25 gSubXP,  %STARS%\4HALFSTAR.png
 ;SB Master YI
-Gui, add, picture, vSTAR14 x%ICONSLOTX5S%  y%STARY2%  w100 h25 gSubXP,  %STARS%\4HALFSTAR.png
+Gui, add, picture, vSTAR15 x%STARX7%  y%STARY2%  w100 h25 gSubXP,  %STARS%\4HALFSTAR.png
 ;Swain/Fizz
-Gui, add, picture, vSTAR15 x%ICONSLOTX6S%  y%STARY0%  w100 h25 gSubXP, %STARS%\5STAR.png
+Gui, add, picture, vSTAR16 x%STARX8%  y%STARY0%  w100 h25 gSubXP, %STARS%\5STAR.png
 ;Viego/Fiddle/ Arcane Karma
-Gui, add, picture, vSTAR16 x%TEXTX7S%  y%STARY%  w75 h50 gSubXP, %STARS%\6STARVERT.png
+Gui, add, picture, vSTAR17 x%STARX9%  y%STARY%  w75 h50 gSubXP, %STARS%\6STARVERT.png
 ;Arcane Asol
-Gui, add, picture, vSTAR17 x%TEXTX8S%  y%STARY%  w87 h50 gSubXP, %STARS%\6HALFSTARVERT.png
+Gui, add, picture, vSTAR18 x%STARX10%  y%STARY%  w87 h50 gSubXP, %STARS%\6HALFSTARVERT.png
+;Nightmare Zoe
+Gui, add, picture, vSTAR19 x%STARX10%  y%STARY1%  w100 h25 gSubXP, %STARS%\10STAR.png
 
 
 ;********************************************************************************
 
 ;Images - Adventure Icons Cordinates
 ;0 or .5
-Gui, add, picture, vTEEMO  x%ICONSLOTX0S% y%ICONSLOTY1S%  w100 h100 gAddXP, %PROFILE%\World 125 Teemo.png
-Gui, add, picture, vMF     x%ICONSLOTX0S% y%ICONSLOTY2S%  w100 h100 gAddXP, %PROFILE%\World 125 MF.png
+Gui, add, picture, vTEEMO  x%ICONSLOTX2% y%ICONSLOTY1%  w100 h100 gAddXP, %PROFILE%\World 125 Teemo.png
+Gui, add, picture, vMF     x%ICONSLOTX2% y%ICONSLOTY2%  w100 h100 gAddXP, %PROFILE%\World 125 MF.png
 ;1
-Gui, add, picture, vGAREN  x%ICONSLOTX1S% y%ICONSLOTY1S% w100 h100 gAddXP, %PROFILE%\World 150 Garen.png
-Gui, add, picture, vLULU   x%ICONSLOTX1S% y%ICONSLOTY2S% w100 h100 gAddXP, %PROFILE%\World 125 Lulu.png
-Gui, add, picture, vILLAOI x%ICONSLOTX1S% y%ICONSLOTY3S% w100 h100 gAddXP, %PROFILE%\Arcane 150 Illaoi.png
+Gui, add, picture, vGAREN  x%ICONSLOTX3% y%ICONSLOTY1% w100 h100 gAddXP, %PROFILE%\World 150 Garen.png
+Gui, add, picture, vLULU   x%ICONSLOTX3% y%ICONSLOTY2% w100 h100 gAddXP, %PROFILE%\World 125 Lulu.png
+Gui, add, picture, vILLAOI x%ICONSLOTX3% y%ICONSLOTY3% w100 h100 gAddXP, %PROFILE%\Arcane 150 Illaoi.png
 ;1.5
-Gui, add, picture, vGP     x%ICONSLOTX2S% y%ICONSLOTY1S%  w100 h100 gAddXP, %PROFILE%\World 125 Gangplank.png
-Gui, add, picture, vEZ     x%ICONSLOTX2S% y%ICONSLOTY2S%  w100 h100 gAddXP, %PROFILE%\World 125 Ezreal.png
+Gui, add, picture, vGP     x%ICONSLOTX4% y%ICONSLOTY1%  w100 h100 gAddXP, %PROFILE%\World 125 Gangplank.png
+Gui, add, picture, vEZ     x%ICONSLOTX4% y%ICONSLOTY2%  w100 h100 gAddXP, %PROFILE%\World 125 Ezreal.png
 
 ;2
-Gui, add, picture, vNAUTZED x%ICONSLOTX3S% y%ICONSLOTY1S%  w100 h100 gAddXP, %PROFILE%\World 150 Naut Zed.png
-Gui, add, picture, vDAR     x%ICONSLOTX3S% y%ICONSLOTY2S%  w100 h100 gAddXP, %PROFILE%\World 125 Darius.png
-Gui, add, picture, vSETT    x%ICONSLOTX3S% y%ICONSLOTY3S%  w100 h100 gAddXP, %PROFILE%\Titans 150 Sett.png
-Gui, add, picture, vAZIR    x%ICONSLOTX3S% y%ICONSLOTY4S%  w100 h100 gAddXP, %PROFILE%\Arcane 150 Azir.png
+Gui, add, picture, vNAUTZED x%ICONSLOTX5% y%ICONSLOTY1%  w100 h100 gAddXP, %PROFILE%\World 150 Naut Zed.png
+Gui, add, picture, vDAR     x%ICONSLOTX5% y%ICONSLOTY2%  w100 h100 gAddXP, %PROFILE%\World 125 Darius.png
+Gui, add, picture, vSETT    x%ICONSLOTX5% y%ICONSLOTY3%  w100 h100 gAddXP, %PROFILE%\Titans 150 Sett.png
+Gui, add, picture, vAZIR    x%ICONSLOTX5% y%ICONSLOTY4%  w100 h100 gAddXP, %PROFILE%\Arcane 150 Azir.png
 
 ;hide low star adventure
 HideControls(LowStarAdvList)
 
 ;2.5
-Gui, add, picture, vVIKDRAV  x%ICONSLOTX0S% y%ICONSLOTY1S%  w100 h100 gAddXP, %PROFILE%\World 150 Viktor Draven.png
-Gui, add, picture, vSBTEEMO1 x%ICONSLOTX0S% y%ICONSLOTY2S%  w100 h100 gAddXP, %PROFILE%\World 150 SB Teemo.png
-Gui, add, picture, vSAMIRA   x%ICONSLOTX0S% y%ICONSLOTY3S%  w100 h100 gAddXP, %PROFILE%\Rogues 150 Samira.png
-Gui, add, picture, vKALISTA  x%ICONSLOTX0S% y%ICONSLOTY4S%  w100 h100 gAddXP, %PROFILE%\SB 150 Kalista.png
-Gui, add, picture, vTFTCAIT  x%ICONSLOTX0S% y%ICONSLOTY5S%  w100 h100 gAddXP, %PROFILE%\TFT 150 Caitlyn.png
+Gui, add, picture, vVIKDRAV  x%ICONSLOTX2% y%ICONSLOTY1%  w100 h100 gAddXP, %PROFILE%\World 150 Viktor Draven.png
+Gui, add, picture, vSBTEEMO1 x%ICONSLOTX2% y%ICONSLOTY2%  w100 h100 gAddXP, %PROFILE%\World 150 SB Teemo.png
+Gui, add, picture, vSAMIRA   x%ICONSLOTX2% y%ICONSLOTY3%  w100 h100 gAddXP, %PROFILE%\Rogues 150 Samira.png
+Gui, add, picture, vKALISTA  x%ICONSLOTX2% y%ICONSLOTY4%  w100 h100 gAddXP, %PROFILE%\SB 150 Kalista.png
+Gui, add, picture, vTFTCAIT  x%ICONSLOTX2% y%ICONSLOTY5%  w100 h100 gAddXP, %PROFILE%\TFT 150 Caitlyn.png
 
 ;3
-Gui, add, picture, vTHRKAI  x%ICONSLOTX1S% y%ICONSLOTY1S%  w100 h100 gAddXP, %PROFILE%\World 150 Thresh Kaisa.png
-Gui, add, picture, vELDHEI  x%ICONSLOTX1S% y%ICONSLOTY2S%  w100 h100 gAddXP, %PROFILE%\World 150 Heist Elder.png
-Gui, add, picture, vMORDE   x%ICONSLOTX1S% y%ICONSLOTY3S%  w100 h100 gAddXP, %PROFILE%\Titans 150 Mordekaiser.png
-Gui, add, picture, vNASUS   x%ICONSLOTX1S% y%ICONSLOTY4S%  w100 h100 gAddXP, %PROFILE%\TFT 150 Nasus.png
+Gui, add, picture, vTHRKAI  x%ICONSLOTX3% y%ICONSLOTY1%  w100 h100 gAddXP, %PROFILE%\World 150 Thresh Kaisa.png
+Gui, add, picture, vELDHEI  x%ICONSLOTX3% y%ICONSLOTY2%  w100 h100 gAddXP, %PROFILE%\World 150 Heist Elder.png
+Gui, add, picture, vMORDE   x%ICONSLOTX3% y%ICONSLOTY3%  w100 h100 gAddXP, %PROFILE%\Titans 150 Mordekaiser.png
+Gui, add, picture, vNASUS   x%ICONSLOTX3% y%ICONSLOTY4%  w100 h100 gAddXP, %PROFILE%\TFT 150 Nasus.png
 
+;3 / 2475
+Gui, add, picture, vWNAGA    x%ICONSLOTX4% y%ICONSLOTY1%  w100 h100 gAddXP, %PROFILE%\World 150 Naga.png
+Gui, add, picture, vSBNAMI0  x%ICONSLOTX4% y%ICONSLOTY2%  w100 h100 gAddXP, %PROFILE%\SB 150 Nami.png
 
 ;3.5 / 3015 XP rewards
-Gui, add, picture, vFIDDLE1 x%ICONSLOTX2S% y%ICONSLOTY1S%  w100 h100 gAddXP, %PROFILE%\World 150 Fiddle.png
-Gui, add, picture, vDIANA   x%ICONSLOTX2S% y%ICONSLOTY2S%  w100 h100 gAddXP, %PROFILE%\Rogues 150 Diana.png
-Gui, add, picture, vTFTMF   x%ICONSLOTX2S% y%ICONSLOTY3S%  w100 h100 gAddXP, %PROFILE%\TFT 150 MF.png
+Gui, add, picture, vFIDDLE1 x%ICONSLOTX5% y%ICONSLOTY1%  w100 h100 gAddXP, %PROFILE%\World 150 Fiddle.png
+Gui, add, picture, vDIANA   x%ICONSLOTX5% y%ICONSLOTY2%  w100 h100 gAddXP, %PROFILE%\Rogues 150 Diana.png
+Gui, add, picture, vTFTMF   x%ICONSLOTX5% y%ICONSLOTY3%  w100 h100 gAddXP, %PROFILE%\TFT 150 MF.png
+
 															                  
 ;3100-3200 xp rewards
-Gui, add, picture, vGALIO   x%ICONSLOTX3S% y%ICONSLOTY1S%  w100 h100 gAddXP, %PROFILE%\World 150 Galio.png
-Gui, add, picture, vAGAREN  x%ICONSLOTX3S% y%ICONSLOTY2S%  w100 h100 gAddXP, %PROFILE%\Arcane 150 Garen.png
+Gui, add, picture, vGALIO   x%ICONSLOTX6% y%ICONSLOTY1%  w100 h100 gAddXP, %PROFILE%\World 150 Galio.png
+Gui, add, picture, vAGAREN  x%ICONSLOTX6% y%ICONSLOTY2%  w100 h100 gAddXP, %PROFILE%\Arcane 150 Garen.png
 
 ;********************************************************************************
 ;SBSERAPHINE
-Gui, add, picture, vSBSERA  x%ICONSLOTX4S% y%ICONSLOTY1S%  w100 h100 gAddXP, %PROFILE%\SB 150 Seraphine.png
+Gui, add, picture, vSBSERA  x%ICONSLOTX7% y%ICONSLOTY1%  w100 h100 gAddXP, %PROFILE%\SB 150 Seraphine.png
 ;asol
-Gui, add, picture, vASOL    x%ICONSLOTX4S% y%ICONSLOTY22%  w100 h100 gAddXP, %PROFILE%\World 150 Aurelion Sol.png
+Gui, add, picture, vASOL    x%ICONSLOTX7% y%ICONSLOTY22%  w100 h100 gAddXP, %PROFILE%\World 150 Aurelion Sol.png
 ;lissandra
-Gui, add, picture, vLISS    x%ICONSLOTX4S% y%ICONSLOTY33%  w100 h100 gAddXP, %PROFILE%\World 150 Lissandra.png
+Gui, add, picture, vLISS    x%ICONSLOTX7% y%ICONSLOTY33%  w100 h100 gAddXP, %PROFILE%\World 150 Lissandra.png
 
 ;4k-5k XP rewards
-Gui, add, picture, vYAS     x%ICONSLOTX5S% y%ICONSLOTY1%   w100 h100 gAddXP, %PROFILE%\World 150 Yasuo.png
-Gui, add, picture, vWW      x%ICONSLOTX5S% y%ICONSLOTY22%  w100 h100 gAddXP, %PROFILE%\Arcane 150 Warwick.png
-Gui, add, picture, vROGUEYI x%ICONSLOTX5S% y%ICONSLOTY33%  w100 h100 gAddXP, %PROFILE%\Rogues 150 Master Yi.png
+Gui, add, picture, vYAS     x%ICONSLOTX8% y%ICONSLOTY1%   w100 h100 gAddXP, %PROFILE%\World 150 Yasuo.png
+Gui, add, picture, vWW      x%ICONSLOTX8% y%ICONSLOTY22%  w100 h100 gAddXP, %PROFILE%\Arcane 150 Warwick.png
+Gui, add, picture, vROGUEYI x%ICONSLOTX8% y%ICONSLOTY33%  w100 h100 gAddXP, %PROFILE%\Rogues 150 Master Yi.png
 
 ;5230 XP rewards
-Gui, add, picture, vSWAIN    x%ICONSLOTX6S% y%ICONSLOTY1S%  w100 h100 gAddXP, %PROFILE%\World 150 Swain.png
-Gui, add, picture, vFIZZ     x%ICONSLOTX6S% y%ICONSLOTY2S%  w100 h100 gAddXP, %PROFILE%\Nightmare 150 Fizz.png
-Gui, add, picture, vVOLINAUT x%ICONSLOTX6S% y%ICONSLOTY3S%  w100 h100 gAddXP, %PROFILE%\Titans 150 Voli Naut.png
-Gui, add, picture, vTFHEIST  x%ICONSLOTX6S% y%ICONSLOTY4S%  w100 h100 gAddXP, %PROFILE%\Rogues 150 TF Heist.png
-Gui, add, picture, vTFTLUX   x%ICONSLOTX6S% y%ICONSLOTY5S%  w100 h100 gAddXP, %PROFILE%\TFT 150 Lux.png
+Gui, add, picture, vSWAIN    x%ICONSLOTX9% y%ICONSLOTY1%  w100 h100 gAddXP, %PROFILE%\World 150 Swain.png
+Gui, add, picture, vFIZZ     x%ICONSLOTX9% y%ICONSLOTY2%  w100 h100 gAddXP, %PROFILE%\Nightmare 150 Fizz.png
+Gui, add, picture, vVOLINAUT x%ICONSLOTX9% y%ICONSLOTY3%  w100 h100 gAddXP, %PROFILE%\Titans 150 Voli Naut.png
+Gui, add, picture, vTFHEIST  x%ICONSLOTX9% y%ICONSLOTY4%  w100 h100 gAddXP, %PROFILE%\Rogues 150 TF Heist.png
+Gui, add, picture, vTFTLUX   x%ICONSLOTX9% y%ICONSLOTY5%  w100 h100 gAddXP, %PROFILE%\TFT 150 Lux.png
 
 ;6030 XP rewards
-Gui, add, picture, vFIDVIE   x%ICONSLOTX7S% y%ICONSLOTY1S%  w100 h100 gAddXP, %PROFILE%\Nightmare 150 Fiddle Viego.png
-Gui, add, picture, vAKARMA   x%ICONSLOTX7S% y%ICONSLOTY2S%  w100 h100 gAddXP, %PROFILE%\Arcane 150 Karma.png
-Gui, add, picture, vTITELD   x%ICONSLOTX7S% y%ICONSLOTY3S%  w100 h100 gAddXP, %PROFILE%\Titans 150 Elder.png
-Gui, add, picture, vSBTEEMO2 x%ICONSLOTX7S% y%ICONSLOTY4S%  w100 h100 gAddXP, %PROFILE%\SB 150 Teemo J4.png
-Gui, add, picture, vTFTBARON x%ICONSLOTX7S% y%ICONSLOTY5S%  w100 h100 gAddXP, %PROFILE%\TFT 150 Baron.png
+Gui, add, picture, vFIDVIE   x%ICONSLOTX10% y%ICONSLOTY1%  w100 h100 gAddXP, %PROFILE%\Nightmare 150 Fiddle Viego.png
+Gui, add, picture, vAKARMA   x%ICONSLOTX10% y%ICONSLOTY2%  w100 h100 gAddXP, %PROFILE%\Arcane 150 Karma.png
+Gui, add, picture, vTITELD   x%ICONSLOTX10% y%ICONSLOTY3%  w100 h100 gAddXP, %PROFILE%\Titans 150 Elder.png
+Gui, add, picture, vSBTEEMO2 x%ICONSLOTX10% y%ICONSLOTY4%  w100 h100 gAddXP, %PROFILE%\SB 150 Teemo J4.png
+Gui, add, picture, vTFTBARON x%ICONSLOTX10% y%ICONSLOTY5%  w100 h100 gAddXP, %PROFILE%\TFT 150 Baron.png
 
 ;Arcane Asol
-Gui, add, picture, vAASOL x%ICONSLOTX8S% y%ICONSLOTY1S% w100 h100 gAddXP, %PROFILE%\Arcane 150 Aurelion Sol.png
+Gui, add, picture, vAASOL  x%ICONSLOTX11% y%ICONSLOTY1% w100 h100 gAddXP, %PROFILE%\Arcane 150 Aurelion Sol.png
+Gui, add, picture, vNGTZOE x%ICONSLOTX11% y%ICONSLOTY22% w100 h100 gAddXP, %PROFILE%\Nightmare 150 Zoe.png
 
 ;********************************************************************************
 ;CurrentChampXP
-Gui, add , Edit, limit6 vCurrentChampXPString gSubmitCurrentChampXPString x860 y480 w70, 0 
-Gui, add , DropDownList, x935 y480 w65  vTargetChamplvl gSubmitTargetChamplvl, 1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16|17|18|19|20|21|22|23|24|25|26|27|28|29|30||31|32|33|34|35|36|37|38|39|40|41|42|43|44|45|46|47|48|49|50
-;Gui, add , Edit,        vCurrentLevel                                     x465 y520 w300 h75 ReadOnly
+Gui, add , Edit, limit6 vCurrentChampXPString gSubmitCurrentChampXPString x55 y145 w70, 0 
+Gui, add , DropDownList, x%ICONSLOTX0% y%ICONSLOTY2% w65  vTargetChamplvl gSubmitTargetChamplvl, 1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16|17|18|19|20|21|22|23|24|25|26|27|28|29|30||31|32|33|34|35|36|37|38|39|40|41|42|43|44|45|46|47|48|49|50
+;Bonus Xp
+Gui, add , DropDownList, x%ICONSLOTX1% y%ICONSLOTY2% w65  vBonusXPString gSubmitBonusXPString, 100||175|200|250|275|300|325|375|400|475|500|550|575|600|625|675|700|775|1000|1200
+Gui, add , Edit, x%ICONSLOTX1% y200  w100 ReadOnly vfriendlytext6 -vscroll,
+(
+Select your bonus XP
+)
 
+;Toggle
+Gui, Add, Button, x%ICONSLOTX2% y%ICONSLOTY0% gTogglePanel, Show Low Star Adventures
 
-Gui, Font, s9.5, Arial
-Gui, add , Edit, x1015 y480 w160 ReadOnly vfriendlytext1 -vscroll,
+Gui, Font, s8.5, Arial
+Gui, add , Edit, x1015 x%ICONSLOTX0% y200 w100 ReadOnly vfriendlytext1 -vscroll,
 (
 Select your target level 
 from the drop down menu
 )
-Gui, Font, s11, Arial
-Gui, add , Edit, x860 y400 w315 ReadOnly vfriendlytext2 Multi -vscroll,
+Gui, add , Edit, x%ICONSLOTX0% y%ICONSLOTY3% w200 ReadOnly vfriendlytext2 Multi -vscroll,
 (
-The numbers above show how many times 
-you need to beat that adventure plus any 
-additional battles to reach your target level 
+The numbers above show how 
+many times you need to beat 
+that adventure plus any additional battles to reach your target level 
+)
+Gui, add , Edit, x%ICONSLOTX0% y%ICONSLOTY1% w100 ReadOnly vfriendlytext7 Multi -vscroll,
+(
 Enter your champion's XP in the box below 
 )
-
-Gui, add , Edit, x%ICONSLOTX1S% y%ICONSLOTY5S% w115 ReadOnly vfriendlytext3 Multi -vscroll,
+Gui, add , Edit, x%ICONSLOTX0% y%ICONSLOTY5% w100 ReadOnly vfriendlytext3 Multi -vscroll,
 (
 Created By:
 Cyclonus101
@@ -503,36 +518,18 @@ Grimm
 LoR wiki
 )
 
-Gui, add , Edit, x%ICONSLOTX9S% y0 w120 ReadOnly vfriendlytext4 -vscroll,
+Gui, add , Edit, x%ICONSLOTX1% y%ICONSLOTY0% w100 ReadOnly vfriendlytext4 -vscroll,
 (
 Click the stars to subtract that adventure's XP
 )
-Gui, add , Edit, x%ICONSLOTX9S% y%ICONSLOTX1S% w140 ReadOnly vfriendlytext5 -vscroll,
+Gui, add , Edit, x%ICONSLOTX1% y%ICONSLOTY1% w100 ReadOnly vfriendlytext5 -vscroll,
 (
-Click the adventure icon to add that adventure's XP
+Click the adventure 
+icon to add that adventure's XP
 )
 
-;********************************************************************************
-
-;Legends XP part - currently removed because it's not that relevent
-;Gui, add , Edit, limit5 vCurrentLegendXPString gSubmitCurrentLegendXPString xm+778 y350 w70 h28
-;Gui, add , DropDownList, xm+850  y350 w65  vCurrentLegendlvl gSubmitCurrentLegendlvl , 1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16|17|18|19|20|21|22|23|24|25|26|27|28|29|30|31|32|33|35|36|37|38|39|40|41|42|43|44|45|46|47|48|49|50||51|52|53|54|55|56|57|58|59|60|61|62|63|64|65|66|67|68|69|70|71|71|72|73|74|75|76|77|78|79|80
-;Gui, add , DropDownList, xm+850  y380 w65  vTargetLegendlvl  gSubmitTargetLegendlvl  , 1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16|17|18|19|20|21|22|23|24|25|26|27|28|29|30|31|32|33|35|36|37|38|39|40|41|42|43|44|45|46|47|48|49|50|51|52|53|54|55|56|57|58|59|60|61|62|63|64|65|66|67|68|69|70|71|71|72|73|74|75|76|77|78|79|80||
-;Gui, add , Edit, vamountsofweeks xm+723 y380 w125 h28 ReadOnly, Weeks 
-;Gui, add, Picture, x750 y325, images\legend_icon.png
-
-;Toggle********************************************************************************
-; Toggle button
-Gui, Add, Button, x860 y365 gTogglePanel, Show Low Star Adventures
-;Bonus Xp************************************
-
-Gui, add , DropDownList, x935 y525 w65  vBonusXPString gSubmitBonusXPString, 100||175|200|250|275|300|325|375|400|475|500|550|575|600|625|675|700|775|1000|1200
-Gui, add , Edit, x1015 y525 w160 ReadOnly vfriendlytext6 -vscroll,
-(
-Select your bonus XP
-)
 ;Start the GUI**************************************************************
-Gui, Show, w1225 h575, Path of Champions XP Calculator Patch 7.2 Rogues of Runeterra Rerun
+Gui, Show, w1200 h575, Path of Champions XP Calculator Patch 7.6 Illaoi Constellation Patch
 return
 ;--------------------------------------------------------------------------------------------------
 ; Label Functions for Champ XP 
@@ -768,6 +765,7 @@ UpdateRuns()
 
 	loop := 1 
 	; UNIQUE_ADVENTURE_XP_REWARDS is currently the total number of adventures that provide unique XP
+	;msgbox %UNIQUE_ADVENTURE_XP_REWARDS%
 	while ( loop <= UNIQUE_ADVENTURE_XP_REWARDS  )
 	{	
 		; Update the Amount of adventures and battles ctr by inputing the loop# which acts as an index
@@ -778,11 +776,14 @@ UpdateRuns()
 		controlName := AdventureText_LUT[loop]
 		battleNum := BATTLES_LUT[loop]
 		
+	
 		; Update the GUI text dynamically
 		GuiControl, Text, %controlName%, %AmountofAdventures%+%ctr%/%battleNum%
 		
+		
 		loop++
 	}
+	
 	
 	
 	return
@@ -795,12 +796,11 @@ UpdateRunText(Adventure, MaxCtr, ByRef AdventureLUT)
 	ctr := 0
 	AdjustedXP := Floor( (ChampXPList[TargetChamplvl] - CurrentChampXPString) / (BonusXP / 100))
 	
-	
-	
 	frac_adv := mod(AdjustedXP,StarXP[Adventure])
+	ADVXP := StarXP[Adventure]
 	
-	;if(Adventure>14)
-	;MsgBox %AdjustedXP% + %frac_adv%
+	;if(adventure==19)
+	;msgbox Remainder XP %frac_adv% %AdjustedXP% %ADVXP% %MaxCtr%
 	
 	while frac_adv>AdventureLUT[++ctr] && ctr<MaxCtr
 	{}	
