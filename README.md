@@ -1,4 +1,4 @@
-# TPOC2 Champion XP Calculator Patch 6.11
+# TPOC2 Champion XP Calculator Patch 7.6
 Install AHK to start running it  
 To start click the Green Code button in the top right corner and click download  
 Extract the folder to where you want it to be  
